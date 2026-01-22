@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'screens/responsive_home.dart'; // <-- Import responsive screen
 
 void main() {
   runApp(const CraftConnectApp());
@@ -34,6 +35,16 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     setState(() {
       isStarted = !isStarted;
     });
+
+    if (isStarted) {
+      // Navigate to ResponsiveHome after pressing "Explore App"
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const ResponsiveHome(),
+        ),
+      );
+    }
   }
 
   @override
