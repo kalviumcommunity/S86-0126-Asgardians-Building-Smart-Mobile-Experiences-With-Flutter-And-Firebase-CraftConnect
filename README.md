@@ -72,3 +72,38 @@ lib/
 Connecting Flutter with Firebase was initially challenging due to platform configuration issues. After proper setup, authentication and database features worked smoothly. Firebase enables secure login, real-time updates, and makes the application scalable for future growth.
 
 ---
+
+
+## Understanding Widget Tree & Reactive UI (Sprint #2)
+
+### 📌 Description
+This task demonstrates Flutter’s widget tree structure and its reactive UI model. A simple demo screen was created to show how widgets are arranged in a hierarchy and how the UI updates automatically when the state changes.
+
+---
+
+### 🌳 Widget Tree Hierarchy
+
+Scaffold  
+ ┣ AppBar  
+ ┗ Body  
+    ┗ Center  
+       ┗ Column  
+          ┣ Text  
+          ┣ Container  
+          ┗ ElevatedButton  
+
+---
+
+### 🔄 Reactive UI Model
+Flutter uses a reactive UI approach. When the state changes using setState(), Flutter automatically rebuilds only the affected widgets instead of the whole screen. This makes UI updates fast and efficient.
+
+In this demo:
+- Initial UI shows default text and color
+- Clicking the button updates the state
+- Text and container color change instantly
+- Only the required widgets are rebuilt
+
+---
+
+### 🧠 Learning Outcome
+Through this task, I understood how Flutter builds UI using a widget tree and how state changes trigger automatic UI updates. This helped me clearly understand Flutter’s reactive design pattern and efficient rendering system.
