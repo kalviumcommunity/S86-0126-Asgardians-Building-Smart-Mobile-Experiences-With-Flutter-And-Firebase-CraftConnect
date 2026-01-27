@@ -10,10 +10,7 @@ class HeaderText extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Text(
       'Interactive Counter App',
-      style: TextStyle(
-        fontSize: 22,
-        fontWeight: FontWeight.bold,
-      ),
+      style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
     );
   }
 }
@@ -34,6 +31,7 @@ class _CounterWidgetState extends State<CounterWidget> {
   void increment() {
     setState(() {
       count++;
+      debugPrint('Count updated to $count');
     });
   }
 
@@ -41,15 +39,9 @@ class _CounterWidgetState extends State<CounterWidget> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        Text(
-          'Count: $count',
-          style: const TextStyle(fontSize: 18),
-        ),
+        Text('Count: $count', style: const TextStyle(fontSize: 18)),
         const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: increment,
-          child: const Text('Increase'),
-        ),
+        ElevatedButton(onPressed: increment, child: const Text('Increase')),
       ],
     );
   }
@@ -64,16 +56,14 @@ class DemoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Stateless vs Stateful Widgets'),
-      ),
+      appBar: AppBar(title: const Text('Stateless vs Stateful Widgets')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: const [
-            HeaderText(),      // Stateless widget
+            HeaderText(), // Stateless widget
             SizedBox(height: 20),
-            CounterWidget(),   // Stateful widget
+            CounterWidget(), // Stateful widget
           ],
         ),
       ),
