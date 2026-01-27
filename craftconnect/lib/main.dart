@@ -3,6 +3,8 @@ import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
 import 'screens/login_screen.dart';
+import 'screens/widget_tree_demo.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,7 +25,7 @@ class CraftConnectApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: const LoginScreen(), // ✅ START FROM LOGIN
+      home: const WidgetTreeDemo(),
     );
   }
 }
