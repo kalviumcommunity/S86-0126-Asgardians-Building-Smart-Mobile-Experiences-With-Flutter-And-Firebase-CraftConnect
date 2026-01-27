@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
-import 'screens/login_screen.dart';
-import 'screens/widget_tree_demo.dart';
-
+import 'screens/stateless_stateful_demo.dart'; // ✅ Module 2 screen
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,7 +23,7 @@ class CraftConnectApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.teal,
       ),
-      home: const WidgetTreeDemo(),
+      home: const DemoScreen(), // ✅ Stateless vs Stateful demo
     );
   }
 }
