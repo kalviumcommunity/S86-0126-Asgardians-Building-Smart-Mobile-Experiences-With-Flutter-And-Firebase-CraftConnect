@@ -7,6 +7,7 @@ import 'screens/dev_tools_demo_screen.dart'; // ✅ Hot Reload & DevTools demo
 import 'screens/home_screen.dart';
 import 'screens/second_screen.dart';
 import 'screens/responsive_layout.dart';
+import 'screens/scrollable_views.dart'; // ✅ ListView & GridView demo
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,11 +27,11 @@ class CraftConnectApp extends StatelessWidget {
       home: const DevToolsDemoScreen(), // ✅ Hot Reload & DevTools demo
       // Alternative: DemoScreen() for Stateless vs Stateful demo
       routes: {
-      '/home': (context) => const HomeScreen(),
-      '/second': (context) => const SecondScreen(),
-      '/responsive': (context) => const ResponsiveLayout(),
-
-  },
+        '/home': (context) => const HomeScreen(),
+        '/second': (context) => const SecondScreen(),
+        '/responsive': (context) => const ResponsiveLayout(),
+        '/scrollable': (context) => ScrollableViews(),
+      },
     );
   }
 }
