@@ -133,3 +133,20 @@ User can return to previous screens using back navigation
 ### Learning Outcome
 
 I learned how Flutter manages multiple screens using a navigation stack and how named routes make navigation clean and scalable for larger applications.
+
+
+# Responsive Layout Using Row, Column & Container
+
+### Description
+A responsive layout screen was built using Container, Row, Column, and Expanded widgets. The layout adapts based on screen width using MediaQuery.
+
+### Layout Design
+- Header section at top
+- Content area changes based on screen size
+- Column layout for small screens
+- Row layout for large screens
+
+### Reflection
+Responsive design ensures the app looks good on all devices. The main challenge was managing layout proportions using Expanded and switching between Row and Column layouts. This approach improves usability across phones and tablets.
+
+

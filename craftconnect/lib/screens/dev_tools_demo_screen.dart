@@ -189,6 +189,12 @@ class _DevToolsDemoScreenState extends State<DevToolsDemoScreen> {
                         },
                         child: const Text('Go to Second Screen'),
                       ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/responsive');
+                        },
+                        child: const Text('Open Responsive Layout'),
+                      ),
                     ],
                   ),
                 ),
