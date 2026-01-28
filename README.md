@@ -107,3 +107,29 @@ In this demo:
 
 ### 🧠 Learning Outcome
 Through this task, I understood how Flutter builds UI using a widget tree and how state changes trigger automatic UI updates. This helped me clearly understand Flutter’s reactive design pattern and efficient rendering system.
+
+
+# Multi-Screen Navigation Using Navigator & Routes
+
+## Description
+
+This task demonstrates how multiple screens are connected in the app using Flutter’s Navigator and named routes. Navigation was added to move smoothly between different pages, making the app structure scalable and easy to manage.
+
+## Navigation Setup
+The app includes the following screens for navigation:
+
+DevTools Demo Screen (start screen)
+Home Screen
+Second Screen
+
+Named routes are defined in main.dart, and navigation is handled using Navigator.pushNamed() and Navigator.pop().
+
+## Navigation Flow
+App opens on the DevTools Demo Screen
+User navigates to Home Screen
+From Home Screen, user navigates to Second Screen
+User can return to previous screens using back navigation
+
+### Learning Outcome
+
+I learned how Flutter manages multiple screens using a navigation stack and how named routes make navigation clean and scalable for larger applications.
