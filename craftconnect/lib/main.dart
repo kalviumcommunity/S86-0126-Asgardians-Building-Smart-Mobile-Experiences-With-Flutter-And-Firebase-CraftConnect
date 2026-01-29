@@ -23,7 +23,34 @@ class CraftConnectApp extends StatelessWidget {
     return MaterialApp(
       title: 'CraftConnect',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.teal),
+      theme: ThemeData(
+        primarySwatch: Colors.teal,
+        scaffoldBackgroundColor: Colors.teal.shade50,
+      
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.teal,
+          foregroundColor: Colors.white,
+          centerTitle: true,
+        ),
+      
+        textTheme: const TextTheme(
+          headlineLarge: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          bodyMedium: TextStyle(fontSize: 16),
+          labelLarge: TextStyle(fontSize: 16, color: Colors.white),
+        ),
+      
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.teal,
+            foregroundColor: Colors.white,
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
+      ),
+
       home: const DevToolsDemoScreen(), // ✅ Hot Reload & DevTools demo
       // Alternative: DemoScreen() for Stateless vs Stateful demo
       routes: {
