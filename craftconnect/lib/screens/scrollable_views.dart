@@ -5,20 +5,27 @@ class ScrollableViews extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Scrollable Views'),
-        backgroundColor: Colors.teal,
+        title: const Text('Scrollable Views'),
+        // removed backgroundColor (now uses global theme)
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              padding: EdgeInsets.all(8),
+            // --------------------
+            // ListView title
+            // --------------------
+            Padding(
+              padding: const EdgeInsets.all(8),
               child: Text(
                 'ListView Example',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
-            Container(
+
+            // --------------------
+            // Horizontal ListView
+            // --------------------
+            SizedBox(
               height: 200,
               child: ListView.builder(
                 scrollDirection: Axis.horizontal,
@@ -26,35 +33,44 @@ class ScrollableViews extends StatelessWidget {
                 itemBuilder: (context, index) {
                   return Container(
                     width: 150,
-                    margin: EdgeInsets.all(8),
-                    color: Colors.teal[100 * (index + 2)],
+                    margin: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Center(
                       child: Text(
                         'Card $index',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
                   );
                 },
               ),
             ),
-            Divider(thickness: 2),
-            Container(
-              padding: EdgeInsets.all(8),
+
+            const Divider(thickness: 2),
+
+            // --------------------
+            // GridView title
+            // --------------------
+            Padding(
+              padding: const EdgeInsets.all(8),
               child: Text(
                 'GridView Example',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
             ),
-            Container(
+
+            // --------------------
+            // GridView
+            // --------------------
+            SizedBox(
               height: 400,
               child: GridView.builder(
-                physics: NeverScrollableScrollPhysics(),
+                physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   crossAxisSpacing: 10,
                   mainAxisSpacing: 10,
@@ -62,14 +78,14 @@ class ScrollableViews extends StatelessWidget {
                 itemCount: 6,
                 itemBuilder: (context, index) {
                   return Container(
-                    color: Colors.primaries[index % Colors.primaries.length],
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).primaryColor,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Center(
                       child: Text(
                         'Tile $index',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.labelLarge,
                       ),
                     ),
                   );

@@ -195,6 +195,13 @@ class _DevToolsDemoScreenState extends State<DevToolsDemoScreen> {
                         },
                         child: const Text('Open Responsive Layout'),
                       ),
+                      ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, '/scrollable');
+                        },
+                        child: const Text('Open Scrollable Views'),
+                      ),
+
                     ],
                   ),
                 ),

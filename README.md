@@ -150,3 +150,25 @@ A responsive layout screen was built using Container, Row, Column, and Expanded 
 Responsive design ensures the app looks good on all devices. The main challenge was managing layout proportions using Expanded and switching between Row and Column layouts. This approach improves usability across phones and tablets.
 
 
+# Consistent Styling and Theme Implementation
+
+### Description
+A global theme was applied to the app using ThemeData to ensure consistent colors, text styles, and button designs across all screens.
+
+### What Was Implemented
+- Common color palette using primarySwatch
+- Global AppBar styling
+- TextTheme for headings and body text
+- ElevatedButtonTheme for consistent buttons
+- Shared background color for all screens
+
+### Screenshots
+- Home screen with theme
+- Scrollable view with theme
+- Buttons and text styles consistency
+
+### Reflection
+Using a global theme makes the app look professional and consistent. It also reduces repeated styling code and makes future UI updates easier. The main challenge was replacing hardcoded styles with theme-based styles.
+
+
+
