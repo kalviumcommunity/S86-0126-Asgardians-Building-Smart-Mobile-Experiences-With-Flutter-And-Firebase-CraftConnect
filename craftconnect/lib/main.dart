@@ -10,15 +10,14 @@ import 'screens/dev_tools_demo_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/second_screen.dart';
 import 'screens/responsive_layout.dart';
+import 'screens/responsive_demo_screen.dart';
 import 'screens/scrollable_views.dart';
 import 'screens/user_input_form.dart';
 import 'screens/asset_demo_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const CraftConnectApp());
 }
 
@@ -66,6 +65,7 @@ class CraftConnectApp extends StatelessWidget {
         '/home': (context) => const HomeScreen(),
         '/second': (context) => const SecondScreen(),
         '/responsive': (context) => const ResponsiveLayout(),
+        '/responsive-demo': (context) => const ResponsiveDemoScreen(),
         '/scrollable': (context) => ScrollableViews(),
         '/user-input': (context) => UserInputForm(),
 

@@ -197,11 +197,20 @@ class _DevToolsDemoScreenState extends State<DevToolsDemoScreen> {
                       ),
                       ElevatedButton(
                         onPressed: () {
+                          Navigator.pushNamed(context, '/responsive-demo');
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.purple,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: const Text('📱 Responsive Design Demo'),
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
                           Navigator.pushNamed(context, '/scrollable');
                         },
                         child: const Text('Open Scrollable Views'),
                       ),
-
                     ],
                   ),
                 ),
