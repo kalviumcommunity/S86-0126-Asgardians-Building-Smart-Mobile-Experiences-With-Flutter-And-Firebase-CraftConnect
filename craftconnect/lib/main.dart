@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 
 import 'firebase_options.dart';
+
+// Screens
 import 'screens/stateless_stateful_demo.dart';
+import 'screens/state_management_demo.dart';
 import 'screens/dev_tools_demo_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/second_screen.dart';
@@ -55,16 +58,22 @@ class CraftConnectApp extends StatelessWidget {
         ),
       ),
 
+      // Default screen
       home: const DevToolsDemoScreen(),
 
+      // App routes
       routes: {
         '/home': (context) => const HomeScreen(),
         '/second': (context) => const SecondScreen(),
         '/responsive': (context) => const ResponsiveLayout(),
         '/scrollable': (context) => ScrollableViews(),
-
         '/user-input': (context) => UserInputForm(),
-      },
+
+        // Sprint-2 demos
+        '/state-management': (context) => const StateManagementDemo(),
+        '/stateless-vs-stateful': (context) => const DemoScreen(),
+
+              },
     );
   }
 }
