@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../widgets/custom_button.dart';
+
 
 class SecondScreen extends StatelessWidget {
   const SecondScreen({super.key});
@@ -16,12 +18,13 @@ class SecondScreen extends StatelessWidget {
           children: [
             Text(message ?? 'No data received'),
             const SizedBox(height: 20),
-            ElevatedButton(
+            CustomButton(
+              text: 'Go Back',
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text('Back to Home'),
             ),
+
           ],
         ),
       ),

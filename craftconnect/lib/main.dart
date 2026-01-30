@@ -59,8 +59,7 @@ class CraftConnectApp extends StatelessWidget {
         ),
       ),
 
-      // ✅ Default screen for Sprint-2 Assets Assignment
-      home: const AssetDemoScreen(),
+      home: const HomeScreen(),
 
       // App routes
       routes: {
