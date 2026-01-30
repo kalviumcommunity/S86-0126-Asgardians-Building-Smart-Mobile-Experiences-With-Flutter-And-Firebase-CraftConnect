@@ -162,13 +162,38 @@ A global theme was applied to the app using ThemeData to ensure consistent color
 - ElevatedButtonTheme for consistent buttons
 - Shared background color for all screens
 
-### Screenshots
-- Home screen with theme
-- Scrollable view with theme
-- Buttons and text styles consistency
-
 ### Reflection
 Using a global theme makes the app look professional and consistent. It also reduces repeated styling code and makes future UI updates easier. The main challenge was replacing hardcoded styles with theme-based styles.
+
+
+# Reusable Custom Widgets
+
+## Description
+
+This task demonstrates how reusable custom widgets can be created in Flutter to reduce code duplication and maintain consistent UI design. Common UI elements were refactored into reusable widgets and used across multiple screens to make the app modular and scalable.
+
+## Custom Widgets Created
+
+The following reusable widgets were created:
+
+CustomButton
+A reusable button widget used for navigation and actions across different screens.
+
+InfoCard
+A reusable card widget used to display structured information such as title, subtitle, and icon.
+
+## Reuse Implementation
+
+The same CustomButton widget is used in both Home Screen and Second Screen with different actions.
+The InfoCard widget is reused multiple times on the Home Screen with different data.
+This approach keeps the UI consistent and reduces repeated code.
+
+### Learning Outcome
+
+I learned how to break large UI code into smaller reusable components, making the codebase cleaner, easier to maintain, and faster to scale for team-based development.
+
+
+
 
 
 
