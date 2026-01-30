@@ -12,6 +12,7 @@ import 'screens/second_screen.dart';
 import 'screens/responsive_layout.dart';
 import 'screens/scrollable_views.dart';
 import 'screens/user_input_form.dart';
+import 'screens/asset_demo_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,8 +59,8 @@ class CraftConnectApp extends StatelessWidget {
         ),
       ),
 
-      // Default screen
-      home: const DevToolsDemoScreen(),
+      // ✅ Default screen for Sprint-2 Assets Assignment
+      home: const AssetDemoScreen(),
 
       // App routes
       routes: {
@@ -72,8 +73,8 @@ class CraftConnectApp extends StatelessWidget {
         // Sprint-2 demos
         '/state-management': (context) => const StateManagementDemo(),
         '/stateless-vs-stateful': (context) => const DemoScreen(),
-
-              },
+        '/dev-tools': (context) => const DevToolsDemoScreen(),
+      },
     );
   }
 }
