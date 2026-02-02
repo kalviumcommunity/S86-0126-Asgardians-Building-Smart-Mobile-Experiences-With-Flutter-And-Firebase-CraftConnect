@@ -211,6 +211,25 @@ Animations improve usability by guiding user attention and making interactions i
 I learned the difference between implicit and explicit animations and how to apply them meaningfully without affecting performance.
 
 
+# Firebase Project Setup & Flutter Integration
+
+## Description:
+This task verifies the successful setup and integration of Firebase with the CraftConnect Flutter application. Firebase acts as the backend foundation for authentication, database, and future cloud features.
+
+## Initialization
+
+Firebase is initialized at app startup using Firebase.initializeApp() to ensure all Firebase services are available before the UI loads.
+
+## Verification
+
+Application runs without Firebase configuration errors
+App appears as active under Firebase Console → Project Settings → Your Apps
+Firebase logs confirm successful initialization.
+
+## Learning Outcome
+This setup enables seamless integration of Firebase services like Authentication and Firestore in future features. Verifying the configuration helped reinforce understanding of one-time backend setup and how Flutter connects securely with cloud services.
+
+
 
 
 
