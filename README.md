@@ -193,6 +193,24 @@ This approach keeps the UI consistent and reduces repeated code.
 I learned how to break large UI code into smaller reusable components, making the codebase cleaner, easier to maintain, and faster to scale for team-based development.
 
 
+# Animations and Transitions
+
+## Description
+
+Animations were added to enhance user experience and make interactions feel smooth and engaging.
+
+## Animations Implemented
+
+Implicit Animations using AnimatedContainer and AnimatedOpacity
+UI elements animate smoothly on user interaction
+Animated page navigation using custom route transitions
+
+### Reflection
+
+Animations improve usability by guiding user attention and making interactions intuitive.
+I learned the difference between implicit and explicit animations and how to apply them meaningfully without affecting performance.
+
+
 
 
 

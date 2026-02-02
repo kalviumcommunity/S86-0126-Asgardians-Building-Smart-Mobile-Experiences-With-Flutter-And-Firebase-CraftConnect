@@ -339,7 +339,7 @@ class DemoScreen extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: () =>
                           Navigator.pushNamed(context, '/responsive-demo'),
-                      icon: const Icon(Icons.responsive_layout),
+                      icon: const Icon(Icons.devices),
                       label: const Text('View Full Responsive Demo'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.purple,
