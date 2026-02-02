@@ -14,6 +14,8 @@ import 'screens/responsive_demo_screen.dart';
 import 'screens/scrollable_views.dart';
 import 'screens/user_input_form.dart';
 import 'screens/asset_demo_screen.dart';
+import 'screens/animation_demo_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +70,8 @@ class CraftConnectApp extends StatelessWidget {
         '/responsive-demo': (context) => const ResponsiveDemoScreen(),
         '/scrollable': (context) => ScrollableViews(),
         '/user-input': (context) => UserInputForm(),
+        '/animations': (context) => const AnimationDemoScreen(),
+
 
         // Sprint-2 demos
         '/state-management': (context) => const StateManagementDemo(),

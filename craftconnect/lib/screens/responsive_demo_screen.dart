@@ -287,7 +287,7 @@ class ResponsiveDemoScreen extends StatelessWidget {
 
   Widget _buildDemoPanel(
     String title,
-    Color color,
+    MaterialColor color,
     double width,
     double height,
   ) {
