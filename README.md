@@ -230,6 +230,30 @@ Firebase logs confirm successful initialization.
 This setup enables seamless integration of Firebase services like Authentication and Firestore in future features. Verifying the configuration helped reinforce understanding of one-time backend setup and how Flutter connects securely with cloud services.
 
 
+# Firebase Authentication (Email & Password)
+
+## Description
+
+This task implements user authentication using Firebase Authentication with Email and Password in the CraftConnect Flutter application. Users can securely sign up for a new account or log in to an existing account, with all authentication handled by Firebase.
+
+## Features Implemented
+
+Email & Password authentication using Firebase Auth
+User signup and login functionality
+Toggle between Login and Signup modes
+Error handling for invalid credentials
+Authentication state synced with Firebase Console.
+
+## Verification
+
+Successfully registered users appear in Firebase Console → Authentication → Users
+Login and signup actions work without backend configuration
+
+### Reflection
+
+Firebase Authentication simplifies user management by handling security, validation, and session management automatically. Compared to custom authentication systems, Firebase provides built-in security, scalability, and reliability. The main challenge was handling initialization order and managing authentication states correctly.
+
+
 
 
 
