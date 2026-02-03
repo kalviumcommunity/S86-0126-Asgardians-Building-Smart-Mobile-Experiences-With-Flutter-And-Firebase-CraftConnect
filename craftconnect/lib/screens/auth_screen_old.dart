@@ -44,10 +44,7 @@ class _AuthScreenState extends State<AuthScreen> {
           email: email,
           password: password,
         );
-        _showSnackBar(
-          "Account created successfully! Welcome to CraftConnect.",
-          Colors.green,
-        );
+        _showSnackBar("Account created successfully! Welcome to CraftConnect.", Colors.green);
       }
     } on FirebaseAuthException catch (e) {
       String message;
@@ -59,8 +56,7 @@ class _AuthScreenState extends State<AuthScreen> {
           message = "Incorrect password. Please try again.";
           break;
         case 'email-already-in-use':
-          message =
-              "An account already exists for this email. Please login instead.";
+          message = "An account already exists for this email. Please login instead.";
           break;
         case 'weak-password':
           message = "Password is too weak. Please choose a stronger password.";
@@ -76,10 +72,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
       _showSnackBar(message, Colors.red);
     } catch (e) {
-      _showSnackBar(
-        "An unexpected error occurred. Please try again.",
-        Colors.red,
-      );
+      _showSnackBar("An unexpected error occurred. Please try again.", Colors.red);
     } finally {
       setState(() => isLoading = false);
     }
@@ -92,7 +85,9 @@ class _AuthScreenState extends State<AuthScreen> {
         backgroundColor: backgroundColor,
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(8),
+        ),
       ),
     );
   }
@@ -109,7 +104,7 @@ class _AuthScreenState extends State<AuthScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const SizedBox(height: 60),
-
+                
                 // App Logo and Title
                 Container(
                   width: 100,
@@ -125,7 +120,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
                 const SizedBox(height: 20),
-
+                
                 Text(
                   'CraftConnect',
                   style: TextStyle(
@@ -135,10 +130,13 @@ class _AuthScreenState extends State<AuthScreen> {
                   ),
                 ),
                 const SizedBox(height: 10),
-
+                
                 Text(
                   isLogin ? 'Welcome Back!' : 'Create Your Account',
-                  style: TextStyle(fontSize: 18, color: Colors.grey.shade600),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Colors.grey.shade600,
+                  ),
                 ),
                 const SizedBox(height: 40),
 
@@ -157,10 +155,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.teal,
-                        width: 2,
-                      ),
+                      borderSide: const BorderSide(color: Colors.teal, width: 2),
                     ),
                   ),
                   keyboardType: TextInputType.emailAddress,
@@ -169,9 +164,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     if (value == null || value.isEmpty) {
                       return 'Email is required';
                     }
-                    if (!RegExp(
-                      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
-                    ).hasMatch(value)) {
+                    if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
                       return 'Enter a valid email address';
                     }
                     return null;
@@ -187,9 +180,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     prefixIcon: const Icon(Icons.lock),
                     suffixIcon: IconButton(
                       icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility
-                            : Icons.visibility_off,
+                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
                       ),
                       onPressed: () {
                         setState(() {
@@ -206,10 +197,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: Colors.teal,
-                        width: 2,
-                      ),
+                      borderSide: const BorderSide(color: Colors.teal, width: 2),
                     ),
                   ),
                   obscureText: _obscurePassword,
@@ -274,9 +262,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
                 ),
-
+                
                 const SizedBox(height: 20),
-
+                
                 // Session persistence info
                 Container(
                   padding: const EdgeInsets.all(15),
@@ -304,6 +292,62 @@ class _AuthScreenState extends State<AuthScreen> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(isLogin ? "Login" : "Sign Up"),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            TextField(
+              controller: _emailController,
+              decoration: const InputDecoration(
+                labelText: "Email",
+                border: OutlineInputBorder(),
+              ),
+              keyboardType: TextInputType.emailAddress,
+            ),
+            const SizedBox(height: 15),
+            TextField(
+              controller: _passwordController,
+              decoration: const InputDecoration(
+                labelText: "Password",
+                border: OutlineInputBorder(),
+              ),
+              obscureText: true,
+            ),
+            const SizedBox(height: 25),
+
+            isLoading
+                ? const CircularProgressIndicator()
+                : SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: _submitAuth,
+                      child: Text(isLogin ? "Login" : "Sign Up"),
+                    ),
+                  ),
+
+            TextButton(
+              onPressed: () {
+                setState(() => isLogin = !isLogin);
+              },
+              child: Text(
+                isLogin
+                    ? "Don’t have an account? Sign Up"
+                    : "Already have an account? Login",
+              ),
+            ),
+          ],
         ),
       ),
     );
