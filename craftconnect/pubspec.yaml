@@ -1,5 +1,5 @@
 name: craftconnect
-description: "A new Flutter project."
+description: "CraftConnect Flutter app with Firebase Firestore write & update operations."
 publish_to: "none"
 
 version: 1.0.0+1
@@ -11,8 +11,13 @@ dependencies:
   flutter:
     sdk: flutter
 
+  # Firebase Core
   firebase_core: ^4.4.0
+
+  # Firebase Authentication (already included – good)
   firebase_auth: ^6.1.4
+
+  # Cloud Firestore (Write & Update operations)
   cloud_firestore: ^6.1.2
 
   cupertino_icons: ^1.0.8
