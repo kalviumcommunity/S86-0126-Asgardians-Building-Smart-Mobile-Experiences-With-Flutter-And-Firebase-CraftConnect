@@ -254,6 +254,120 @@ Login and signup actions work without backend configuration
 Firebase Authentication simplifies user management by handling security, validation, and session management automatically. Compared to custom authentication systems, Firebase provides built-in security, scalability, and reliability. The main challenge was handling initialization order and managing authentication states correctly.
 
 
+# Cloud Firestore Database Design – CraftConnect
+
+## 📌 Description
+This task focuses on designing a clear and scalable Cloud Firestore database structure for the CraftConnect application. The goal is to plan how app data will be stored using collections, documents, and subcollections without implementing CRUD operations yet. This schema is designed to support future features such as authentication, product listings, orders, and user interactions.
+
+---
+
+## 📋 Data Requirements
+The CraftConnect app needs to store the following data:
+
+- User profiles (artisans and customers)
+- Product listings created by artisans
+- Product categories
+- Customer orders
+- Order items for each order
+- Timestamps for tracking creation and updates
+
+---
+
+## 🗂️ Firestore Collections Structure
+
+### users (collection)
+Stores user account and profile information.
+
+**Document ID:** userId (Firebase Auth UID)
+
+Fields:
+- name: string  
+- email: string  
+- role: string (artisan / customer)  
+- profileImage: string (URL)  
+- createdAt: timestamp  
+
+---
+
+### products (collection)
+Stores products listed by artisans.
+
+**Document ID:** productId (auto-generated)
+
+Fields:
+- title: string  
+- description: string  
+- price: number  
+- categoryId: string  
+- artisanId: string (reference to users)  
+- imageUrl: string  
+- isAvailable: boolean  
+- createdAt: timestamp  
+
+---
+
+### categories (collection)
+Stores product categories.
+
+**Document ID:** categoryId
+
+Fields:
+- name: string  
+- description: string  
+
+---
+
+### orders (collection)
+Stores customer orders.
+
+**Document ID:** orderId
+
+Fields:
+- userId: string  
+- totalAmount: number  
+- status: string (pending / confirmed / delivered)  
+- createdAt: timestamp  
+
+#### items (subcollection)
+Stores individual items within an order.
+
+Fields:
+- productId: string  
+- quantity: number  
+- price: number  
+
+---
+
+## Sample Firestore Documents
+
+<!-- ### users/{userId}
+```json
+{
+  "name": "Sri Charan",
+  "email": "charan@example.com",
+  "role": "artisan",
+  "profileImage": "https://image.url",
+  "createdAt": "timestamp"
+}
+
+{
+  "title": "Handmade Pottery Vase",
+  "description": "Eco-friendly handcrafted vase",
+  "price": 899,
+  "categoryId": "home_decor",
+  "artisanId": "userId123",
+  "imageUrl": "https://image.url",
+  "isAvailable": true,
+  "createdAt": "timestamp"
+} -->
+
+## Reflection
+
+This Firestore structure was chosen to clearly separate users, products, and orders while allowing the app to scale efficiently as data grows. Subcollections are used where data can increase significantly, such as order items. The design avoids large arrays inside documents and uses timestamps for sorting and querying. This schema makes future CRUD operations, real-time updates, and performance optimization easier to implement.
+
+
+
+
 
 
 
