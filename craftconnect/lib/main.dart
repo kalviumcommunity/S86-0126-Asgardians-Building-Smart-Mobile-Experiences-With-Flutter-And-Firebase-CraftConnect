@@ -18,6 +18,8 @@ import 'screens/animation_demo_screen.dart';
 import 'screens/state_management_demo.dart';
 import 'screens/stateless_stateful_demo.dart';
 import 'screens/dev_tools_demo_screen.dart';
+import 'screens/firestore_tasks_screen.dart';
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -75,6 +77,8 @@ class CraftConnectApp extends StatelessWidget {
         '/state-management': (context) => const StateManagementDemo(),
         '/stateless-vs-stateful': (context) => const DemoScreen(),
         '/dev-tools': (context) => const DevToolsDemoScreen(),
+        '/firestore-tasks': (context) => const FirestoreTasksScreen(),
+
       },
     );
   }
