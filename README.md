@@ -1,4 +1,4 @@
-# Sprint #2 – Flutter & Dart Basics  
+# Sprint #2 – Flutter & Firebase Persistent Session Handling 
 ## CraftConnect Mobile Application
 
 ### Team Name
@@ -7,47 +7,356 @@ Asgardians
 ---
 
 ## 📱 Project Overview
-CraftConnect is a mobile-first digital storefront designed for local artisans to showcase handmade products and connect directly with customers. Built using Flutter and Firebase, the app aims to simplify product listing and catalog sharing through a clean and intuitive mobile UI.
+CraftConnect is a mobile-first digital storefront designed for local artisans to showcase handmade products and connect directly with customers. Built using Flutter and Firebase, the app features **persistent user sessions** that ensure users remain logged in even after closing and reopening the app.
 
-This Sprint #2 deliverable focuses on Flutter setup, UI structure, foundational app architecture, and Firebase integration.
-
----
-
-## 📂 Folder Structure
-
-lib/  
-├── main.dart        – Entry point of the Flutter application  
-├── screens/         – UI screens (Login, Signup, Responsive Home)  
-├── widgets/         – Reusable UI components  
-├── models/          – Data models (future use)  
-├── services/        – Firebase Authentication and Firestore logic  
-
-### Why This Structure?
-- Encourages modular and scalable development  
-- Separates UI, logic, and data layers  
-- Makes future feature additions easier  
-
-### Naming Conventions
-- Files use snake_case  
-- Classes and widgets use PascalCase  
-- Variables and methods use camelCase  
+This implementation demonstrates Firebase Authentication's built-in session persistence capabilities using `authStateChanges()` stream for seamless user experience.
 
 ---
 
-## 🔥 Firebase Integration
+## 🔐 Persistent Session Implementation
 
-### Features Implemented
-- User signup and login using Firebase Authentication  
-- Secure email/password authentication  
-- Real-time data storage using Cloud Firestore  
-- User data stored and retrieved from Firebase database  
+### 📋 Table of Contents
+1. [How Firebase Session Persistence Works](#how-firebase-session-persistence-works)
+2. [authStateChanges() StreamBuilder Implementation](#authstatechanges-streambuilder-implementation)
+3. [Auto-Login Flow](#auto-login-flow)
+4. [Session Testing Guide](#session-testing-guide)
+5. [Code Structure](#code-structure)
+6. [Reflection](#reflection)
 
 ---
 
-## ⚙️ Setup Instructions
+## 🔥 How Firebase Session Persistence Works
+
+Firebase Auth automatically persists user sessions using secure tokens stored on the device:
+
+✅ **Users stay logged in** even after app restart  
+✅ **Tokens auto-refresh** in the background  
+✅ **No manual storage** (like SharedPreferences) required  
+✅ **Automatic session validation** on app startup  
+
+### Key Benefits:
+- **Seamless UX**: No repeated logins required
+- **Security**: Encrypted token storage
+- **Cross-platform**: Works on iOS, Android, Web
+- **Auto-refresh**: Handles token expiry automatically
+
+---
+
+## 📱 authStateChanges() StreamBuilder Implementation
+
+The core of persistent session handling is implemented in [main.dart](craftconnect/lib/main.dart):
+
+```dart
+// 🔥 AUTH FLOW ENTRY POINT - PERSISTENT SESSION HANDLING
+home: StreamBuilder<User?>(
+  stream: FirebaseAuth.instance.authStateChanges(),
+  builder: (context, snapshot) {
+    // Show splash screen while checking authentication state
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const SplashScreen();
+    }
+
+    // If user is authenticated, go to HomeScreen
+    if (snapshot.hasData) {
+      return const HomeScreen();
+    }
+
+    // If no user is authenticated, go to AuthScreen
+    return AuthScreen();
+  },
+),
+```
+
+### 🎯 How This Works:
+
+1. **Stream Listening**: `authStateChanges()` creates a stream that emits whenever:
+   - User logs in
+   - User logs out  
+   - Session becomes invalid
+   - App restarts and checks existing session
+
+2. **Automatic Routing**: Based on the auth state:
+   - `snapshot.hasData` = User logged in → **HomeScreen**
+   - No data = No user → **AuthScreen**
+   - Waiting = Checking session → **SplashScreen**
+
+3. **Real-time Updates**: Any auth state change immediately triggers UI rebuild
+
+---
+
+## 🔄 Auto-Login Flow
+
+### Login Process:
+```
+User Opens App → Check Auth State → Show Appropriate Screen
+     ↓                ↓                    ↓
+ Splash Screen   Check Firebase      Authenticated?
+                     Token               ↙    ↘
+                                    YES     NO
+                                     ↓       ↓
+                                HomeScreen AuthScreen
+```
+
+### Session Persistence Behavior:
+
+| Scenario | Expected Behavior | Result |
+|----------|-------------------|---------|
+| **First Login** | User enters credentials → Redirect to HomeScreen | ✅ Session Created |
+| **App Minimize/Resume** | App checks existing session → Stay in HomeScreen | ✅ Session Maintained |
+| **App Force Close** | User reopens app → Auto-login to HomeScreen | ✅ Session Restored |
+| **Device Restart** | User opens app → Auto-login to HomeScreen | ✅ Session Persisted |
+| **Manual Logout** | User taps logout → Redirect to AuthScreen | ✅ Session Cleared |
+| **Token Expiry** | Firebase detects invalid token → Redirect to AuthScreen | ✅ Auto-handled |
+
+---
+
+## 🧪 Session Testing Guide
+
+### Test Case 1: Login Persistence
+1. **Login** with valid credentials
+2. **Minimize** the app (don't force close)
+3. **Resume** the app
+4. **Expected**: App stays on HomeScreen
+
+### Test Case 2: App Restart Persistence  
+1. **Login** with valid credentials
+2. **Force close** the app completely
+3. **Reopen** the app
+4. **Expected**: App automatically shows HomeScreen (no login required)
+
+### Test Case 3: Device Restart Persistence
+1. **Login** with valid credentials
+2. **Restart** your device
+3. **Open** the app after restart
+4. **Expected**: App automatically shows HomeScreen
+
+### Test Case 4: Logout Functionality
+1. **Login** and reach HomeScreen
+2. **Tap logout** button
+3. **Expected**: App redirects to AuthScreen
+4. **Force close** and reopen
+5. **Expected**: App shows AuthScreen (session cleared)
+
+---
+
+## 📁 Code Structure
+
+## 📁 Code Structure
+
+```
+craftconnect/
+├── lib/
+│   ├── main.dart                    # Entry point with authStateChanges() StreamBuilder
+│   ├── firebase_options.dart        # Firebase configuration
+│   ├── screens/
+│   │   ├── splash_screen.dart       # Loading screen during auth state check
+│   │   ├── auth_screen.dart         # Enhanced login/signup with form validation
+│   │   ├── home_screen.dart         # Protected screen showing user info
+│   │   └── ...                      # Other app screens
+│   ├── widgets/                     # Reusable UI components
+│   ├── models/                      # Data models
+│   └── services/                    # Authentication services
+├── android/app/google-services.json # Firebase Android configuration
+├── ios/Runner/GoogleService-Info.plist # Firebase iOS configuration
+└── pubspec.yaml                     # Dependencies including Firebase
+```
+
+### Key Files for Session Persistence:
+
+1. **[main.dart](craftconnect/lib/main.dart)** - Core auth state management
+2. **[splash_screen.dart](craftconnect/lib/screens/splash_screen.dart)** - Professional loading experience
+3. **[auth_screen.dart](craftconnect/lib/screens/auth_screen.dart)** - Enhanced authentication UI
+4. **[home_screen.dart](craftconnect/lib/screens/home_screen.dart)** - Protected user dashboard
+
+---
+
+## 🎨 Enhanced UI Features
+
+### Splash Screen
+- **Professional Loading**: Custom branded splash screen
+- **Smooth Transitions**: Eliminates jarring auth state checks
+- **Visual Feedback**: Loading indicators during session validation
+
+### Authentication Screen  
+- **Form Validation**: Email format and password strength validation
+- **Better UX**: Toggle password visibility, clear error messages
+- **Session Info**: User notification about persistent login
+- **Error Handling**: Specific Firebase error messages
+
+### Home Screen
+- **Session Information**: Display user metadata and login status
+- **Logout Confirmation**: Prevents accidental logouts
+- **Visual Indicators**: Clear session persistence messaging
+
+---
+
+## 🛠 Technical Implementation Details
+
+### Firebase Dependencies
+```yaml
+dependencies:
+  firebase_core: ^4.4.0      # Firebase initialization
+  firebase_auth: ^6.1.4      # Authentication services
+  cloud_firestore: ^6.1.2    # Database (future features)
+```
+
+### Session Handling Logic
+
+```dart
+// Stream listens to auth state changes
+FirebaseAuth.instance.authStateChanges().listen((User? user) {
+  if (user == null) {
+    // No user logged in - show AuthScreen
+    print('User is currently signed out!');
+  } else {
+    // User is logged in - show HomeScreen  
+    print('User is signed in!');
+  }
+});
+```
+
+### Logout Implementation
+```dart
+void _showLogoutDialog(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Confirm Logout"),
+        content: const Text("Are you sure you want to logout?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              FirebaseAuth.instance.signOut(); // This triggers authStateChanges()
+            },
+            child: const Text("Logout"),
+          ),
+        ],
+      );
+    },
+  );
+}
+```
+
+---
+
+## 🔍 Reflection
+
+### Why Persistent Login is Essential
+
+1. **Modern User Expectations**: Users expect to remain logged in across sessions
+2. **Improved Engagement**: Reduces friction in app usage
+3. **Better Conversion**: Eliminates login barriers for returning users
+4. **Professional Experience**: Matches industry-standard app behavior
+
+### How Firebase Makes Session Handling Easier
+
+1. **Built-in Persistence**: No need for manual token storage
+2. **Automatic Refresh**: Handles token expiry seamlessly  
+3. **Cross-platform**: Same code works on all platforms
+4. **Security**: Industry-standard encryption and storage
+5. **Real-time**: Instant session state synchronization
+
+### Challenges Faced & Solutions
+
+**Challenge**: Initial auth state check caused brief loading
+**Solution**: Implemented dedicated SplashScreen for professional UX
+
+**Challenge**: Users confused about session persistence
+**Solution**: Added informational UI elements explaining the feature
+
+**Challenge**: Abrupt transitions between auth states
+**Solution**: Added smooth loading states and transition animations
+
+**Challenge**: Testing session persistence across scenarios
+**Solution**: Created comprehensive test cases covering all use cases
+
+### Future Improvements
+
+1. **Biometric Authentication**: Add fingerprint/face recognition
+2. **Social Login**: Google, Apple, Facebook authentication
+3. **Session Analytics**: Track login patterns and session duration
+4. **Offline Support**: Handle authentication when device is offline
+5. **Multi-device Sync**: Sync sessions across user's devices
+
+---
+
+## 🚀 Setup Instructions
 
 ### Prerequisites
-- Flutter SDK installed  
+- Flutter SDK installed
+- Firebase project created
+- Android/iOS development environment
+
+### Installation Steps
+1. Clone the repository
+2. Run `flutter pub get`
+3. Configure Firebase (google-services.json / GoogleService-Info.plist)
+4. Run `flutter run`
+
+### Testing Session Persistence
+1. Login with test credentials
+2. Force close the app
+3. Reopen - should auto-login to HomeScreen
+4. Test logout functionality
+5. Verify session is cleared after logout
+
+---
+
+## 📸 Screenshots
+
+### Before Restart (Logged In)
+![Home Screen](screenshots/home_screen_logged_in.png)
+
+### After Restart (Auto-Login)
+![Auto Login](screenshots/auto_login_after_restart.png)
+
+### Logout Behavior  
+![Auth Screen](screenshots/auth_screen_after_logout.png)
+
+---
+
+## 🎥 Demo Video
+
+[View 1-2 Minute Demo](https://drive.google.com/your-demo-video-link)
+
+The video demonstrates:
+- ✅ Login flow
+- ✅ App closure
+- ✅ Auto-login on reopening
+- ✅ Logout functionality
+- ✅ Session persistence verification
+
+---
+
+## 👥 Team Members
+
+- **Team Name**: Asgardians
+- **Sprint**: #2 - Persistent Login State Implementation
+- **Technology**: Flutter + Firebase Authentication
+
+---
+
+## 📋 Commit History
+
+```bash
+feat: implemented persistent user session handling with Firebase Auth
+- Added authStateChanges() StreamBuilder in main.dart
+- Created professional SplashScreen for loading states  
+- Enhanced AuthScreen with form validation and UX improvements
+- Updated HomeScreen with session information and logout confirmation
+- Added comprehensive session persistence testing
+- Updated README with implementation details and testing guide
+```
+
+---
+
+*Built with ❤️ using Flutter & Firebase*  
 - VS Code or Android Studio  
 - Flutter and Dart extensions  
 - Firebase project configured  

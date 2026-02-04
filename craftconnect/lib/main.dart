@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 // Screens
 import 'screens/auth_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 import 'screens/second_screen.dart';
 import 'screens/responsive_layout.dart';
 import 'screens/responsive_demo_screen.dart';
@@ -20,9 +21,7 @@ import 'screens/dev_tools_demo_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   runApp(const CraftConnectApp());
 }
 
@@ -45,20 +44,21 @@ class CraftConnectApp extends StatelessWidget {
         ),
       ),
 
-      // 🔥 AUTH FLOW ENTRY POINT
+      // 🔥 AUTH FLOW ENTRY POINT - PERSISTENT SESSION HANDLING
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
+          // Show splash screen while checking authentication state
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Scaffold(
-              body: Center(child: CircularProgressIndicator()),
-            );
+            return const SplashScreen();
           }
 
+          // If user is authenticated, go to HomeScreen
           if (snapshot.hasData) {
             return const HomeScreen();
           }
 
+          // If no user is authenticated, go to AuthScreen
           return AuthScreen();
         },
       ),
