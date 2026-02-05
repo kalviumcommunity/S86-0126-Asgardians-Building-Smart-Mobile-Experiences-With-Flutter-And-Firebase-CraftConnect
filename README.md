@@ -675,6 +675,34 @@ Fields:
 This Firestore structure was chosen to clearly separate users, products, and orders while allowing the app to scale efficiently as data grows. Subcollections are used where data can increase significantly, such as order items. The design avoids large arrays inside documents and uses timestamps for sorting and querying. This schema makes future CRUD operations, real-time updates, and performance optimization easier to implement.
 
 
+# Writing and Updating Data to Cloud Firestore
+
+## Description
+
+In this task, secure write operations were implemented to store application data in Cloud Firestore from the Flutter app. The focus was on adding new documents, updating existing records, validating user input, and handling Firestore permission errors gracefully.
+
+This task ensures that data written to Firestore is structured, secure, and scalable for real-world usage.
+
+## Input Handling & Validation
+
+A form-based UI was created to capture user input
+
+Validation ensures:
+Required fields are not empty
+Correct data types are stored
+Snackbar messages are shown for success and error cases
+
+## Testing & Verification
+
+Tasks were added from the app and verified in Firebase Console
+Updated task data reflected instantly in Firestore
+Real-time sync behavior was confirmed
+
+### Reflection
+
+Secure write operations are essential to protect application data from unauthorized access and corruption. Understanding the difference between add, set, and update helped in choosing the correct operation for each scenario. Proper validation and Firestore rules ensure data consistency, scalability, and security in production-ready applications.
+
+
 
 
 
