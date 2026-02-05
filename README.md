@@ -563,118 +563,130 @@ Login and signup actions work without backend configuration
 Firebase Authentication simplifies user management by handling security, validation, and session management automatically. Compared to custom authentication systems, Firebase provides built-in security, scalability, and reliability. The main challenge was handling initialization order and managing authentication states correctly.
 
 
-# Cloud Firestore Database Design – CraftConnect
+# Real-Time Sync with Firestore Snapshot Listeners
 
-## 📌 Description
-This task focuses on designing a clear and scalable Cloud Firestore database structure for the CraftConnect application. The goal is to plan how app data will be stored using collections, documents, and subcollections without implementing CRUD operations yet. This schema is designed to support future features such as authentication, product listings, orders, and user interactions.
-
----
-
-## 📋 Data Requirements
-The CraftConnect app needs to store the following data:
-
-- User profiles (artisans and customers)
-- Product listings created by artisans
-- Product categories
-- Customer orders
-- Order items for each order
-- Timestamps for tracking creation and updates
+## ✅ Project Title
+**CraftConnect – Real-Time Firestore Sync**
 
 ---
 
-## 🗂️ Firestore Collections Structure
+## 📡 Understanding Snapshot Listeners
 
-### users (collection)
-Stores user account and profile information.
+Firestore snapshot listeners provide **live data synchronization**. Whenever a document or collection changes, the listener emits a new snapshot and the UI rebuilds instantly.
 
-**Document ID:** userId (Firebase Auth UID)
+### ✅ Collection Snapshot Listener (Real-Time Collection Updates)
+Listens to all documents in a collection and triggers whenever a document is added, updated, or deleted.
 
-Fields:
-- name: string  
-- email: string  
-- role: string (artisan / customer)  
-- profileImage: string (URL)  
-- createdAt: timestamp  
+```dart
+FirebaseFirestore.instance
+  .collection('tasks')
+  .snapshots();
+```
 
----
+### ✅ Document Snapshot Listener (Real-Time Single Document Updates)
+Listens to a single document and triggers on field changes or server updates.
 
-### products (collection)
-Stores products listed by artisans.
-
-**Document ID:** productId (auto-generated)
-
-Fields:
-- title: string  
-- description: string  
-- price: number  
-- categoryId: string  
-- artisanId: string (reference to users)  
-- imageUrl: string  
-- isAvailable: boolean  
-- createdAt: timestamp  
+```dart
+FirebaseFirestore.instance
+  .collection('users')
+  .doc(userId)
+  .snapshots();
+```
 
 ---
 
-### categories (collection)
-Stores product categories.
+## ⚡ StreamBuilder for Real-Time UI
 
-**Document ID:** categoryId
+StreamBuilder rebuilds the UI automatically whenever Firestore emits a new snapshot.
 
-Fields:
-- name: string  
-- description: string  
+### ✅ Collection Listener with StreamBuilder
+```dart
+StreamBuilder(
+  stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    }
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return Text('No tasks available');
+    }
+
+    final docs = snapshot.data!.docs;
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        return ListTile(title: Text(docs[index]['title']));
+      },
+    );
+  },
+);
+```
+
+### ✅ Document Listener with StreamBuilder
+```dart
+StreamBuilder(
+  stream: FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return CircularProgressIndicator();
+    final data = snapshot.data!.data()!;
+    return Text("Name: ${data['name']}");
+  },
+);
+```
 
 ---
 
-### orders (collection)
-Stores customer orders.
+## 🧩 App Implementation (Real-Time UI)
 
-**Document ID:** orderId
+The Home Screen now includes:
 
-Fields:
-- userId: string  
-- totalAmount: number  
-- status: string (pending / confirmed / delivered)  
-- createdAt: timestamp  
+- **Live profile updates** from `users/{uid}` using a document snapshot listener
+- **Live task list updates** from `tasks` collection using a collection listener
 
-#### items (subcollection)
-Stores individual items within an order.
-
-Fields:
-- productId: string  
-- quantity: number  
-- price: number  
+These streams power real-time UI updates using `StreamBuilder` and `.snapshots()`.
 
 ---
 
-## Sample Firestore Documents
+## 📸 Screenshots
 
-<!-- ### users/{userId}
-```json
-{
-  "name": "Sri Charan",
-  "email": "charan@example.com",
-  "role": "artisan",
-  "profileImage": "https://image.url",
-  "createdAt": "timestamp"
-}
+### Firestore Console Updates
+![Firestore Console](screenshots/firestore_console_updates.png)
 
-{
-  "title": "Handmade Pottery Vase",
-  "description": "Eco-friendly handcrafted vase",
-  "price": 899,
-  "categoryId": "home_decor",
-  "artisanId": "userId123",
-  "imageUrl": "https://image.url",
-  "isAvailable": true,
-  "createdAt": "timestamp"
-} -->
+### App UI Updating Instantly
+![Real-Time UI](screenshots/realtime_ui_updates.png)
 
-## Reflection
+---
 
-This Firestore structure was chosen to clearly separate users, products, and orders while allowing the app to scale efficiently as data grows. Subcollections are used where data can increase significantly, such as order items. The design avoids large arrays inside documents and uses timestamps for sorting and querying. This schema makes future CRUD operations, real-time updates, and performance optimization easier to implement.
+## 🧠 Reflection
 
+### Why Real-Time Sync Improves UX
+- Users see changes instantly without manual refresh
+- Feels modern and responsive (like chat or live dashboards)
+- Improves engagement and trust in the app
 
+### How Firestore’s `.snapshots()` Simplifies Live Updates
+- No manual polling or refresh logic required
+- StreamBuilder handles rebuilds automatically
+- Easy to combine loading, empty, and error states
+
+### Challenges Faced
+- Ensuring UI handles empty data safely
+- Avoiding crashes on missing fields
+- Structuring Firestore docs for consistent rendering
+
+---
+
+## ✅ Testing Real-Time Sync
+
+1. Open Firebase Console → Firestore
+2. Add or edit a document inside `tasks`
+3. Update fields inside `users/{uid}`
+4. Watch the app update instantly without refresh
+
+---
 
 
 
