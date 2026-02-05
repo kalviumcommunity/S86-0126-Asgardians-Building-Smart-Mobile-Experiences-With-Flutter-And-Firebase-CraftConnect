@@ -812,54 +812,34 @@ The app features dynamic query controls allowing users to:
 - **Set Result Limits**: Slider to control number of results (1-50)
 - **Sample Data Management**: Populate/clear Firestore test data
 
----
+# Writing and Updating Data to Cloud Firestore
 
-## 📊 Performance Optimizations
+## Description
 
-### ✅ Efficient Querying
-- **Indexed Fields**: All query fields are properly indexed
-- **Result Limiting**: Using `.limit()` to reduce bandwidth
-- **Targeted Filtering**: Fetching only relevant documents
-- **Real-time Updates**: StreamBuilder for live data synchronization
+In this task, secure write operations were implemented to store application data in Cloud Firestore from the Flutter app. The focus was on adding new documents, updating existing records, validating user input, and handling Firestore permission errors gracefully.
 
-### ✅ Error Handling
-- **Connection State Checks**: Proper loading indicators
-- **Empty State Management**: User-friendly empty data messages
-- **Query Error Display**: Clear error messages with retry options
-- **Index Error Prevention**: Structured queries to avoid index issues
+This task ensures that data written to Firestore is structured, secure, and scalable for real-world usage.
 
----
+## Input Handling & Validation
 
-## 🧠 Reflection
+A form-based UI was created to capture user input
 
-### Why Sorting/Filtering Improves UX
-Efficient querying dramatically improves user experience by reducing loading times and displaying only relevant data. Instead of downloading hundreds of products and filtering locally, Firestore queries fetch exactly what users need. This approach scales beautifully from small datasets to enterprise-level applications with millions of documents.
+Validation ensures:
+Required fields are not empty
+Correct data types are stored
+Snackbar messages are shown for success and error cases
 
-### Query Best Practices Applied
-- **Compound Queries**: Combining where clauses with orderBy for complex filtering
-- **Index-Friendly Design**: Structuring queries to work efficiently with Firestore indexes
-- **Pagination Ready**: Using limit() for future pagination implementation
-- **Real-time Sync**: StreamBuilder ensures UI stays synchronized with database changes
+## Testing & Verification
 
-### Challenges Encountered
-The main challenge was ensuring query compatibility with Firestore's indexing requirements. Complex queries combining multiple where clauses with orderBy require composite indexes. The solution was designing queries that work with Firestore's automatic indexing or clearly documenting when manual index creation is needed.
+Tasks were added from the app and verified in Firebase Console
+Updated task data reflected instantly in Firestore
+Real-time sync behavior was confirmed
 
-### Learning Outcomes
-This implementation demonstrates how modern NoSQL databases like Firestore enable sophisticated querying similar to SQL databases while maintaining scalability and real-time capabilities. The combination of filtering, sorting, and limiting creates powerful data retrieval patterns essential for professional mobile applications.
+### Reflection
 
----
+Secure write operations are essential to protect application data from unauthorized access and corruption. Understanding the difference between add, set, and update helped in choosing the correct operation for each scenario. Proper validation and Firestore rules ensure data consistency, scalability, and security in production-ready applications.
 
-## 🎥 Demo Features
 
-The Firestore Queries screen includes:
-- ✅ 9 different query types demonstrating various Firestore capabilities
-- ✅ Interactive controls for dynamic query building
-- ✅ Real-time results that update as Firestore data changes
-- ✅ Sample data management for easy testing
-- ✅ Professional error handling and loading states
-- ✅ Performance optimized with proper indexing
-
----
 
 
 

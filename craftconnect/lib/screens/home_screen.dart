@@ -124,7 +124,24 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ),
+            const SizedBox(height: 30),
+
+ElevatedButton.icon(
+  onPressed: () {
+    Navigator.pushNamed(context, '/firestore-write');
+  },
+  icon: const Icon(Icons.cloud_upload),
+  label: const Text('Firestore Write Demo'),
+  style: ElevatedButton.styleFrom(
+    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+  ),
+),
+
+          ],
+        ),
+      ),
+    );
+  }
 
           const SizedBox(height: 30),
 
