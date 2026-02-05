@@ -689,6 +689,167 @@ These streams power real-time UI updates using `StreamBuilder` and `.snapshots()
 ---
 
 
+# Firestore Queries, Filters & Ordering
+
+## ✅ Project Overview
+**Advanced Firestore Query Implementation with Real-Time Filtering**
+
+This implementation demonstrates sophisticated Firestore querying capabilities including where clauses, sorting, limiting, and complex query combinations. The app showcases efficient data retrieval techniques that make mobile apps fast and responsive by fetching only the required data.
+
+---
+
+## 🔍 Query Types Implemented
+
+### ✅ Basic Queries
+- **All Products**: Fetches entire product collection
+- **Limited Results**: Uses `.limit()` to control data volume
+
+### ✅ Filter Queries (where clauses)
+- **Price Range Filter**: `where('price', isGreaterThanOrEqualTo: minPrice)` + `where('price', isLessThanOrEqualTo: maxPrice)`
+- **Category Filter**: `where('category', isEqualTo: selectedCategory)`
+- **Stock Filter**: `where('inStock', isEqualTo: true)`
+- **Rating Filter**: `where('rating', isGreaterThan: 4.0)`
+
+### ✅ Sorting Queries (orderBy)
+- **Price Sorting**: `orderBy('price', descending: true/false)`
+- **Rating Sorting**: `orderBy('rating', descending: true/false)`
+- **Name Sorting**: `orderBy('name')`
+
+### ✅ Complex Combined Queries
+```dart
+FirebaseFirestore.instance
+  .collection('products')
+  .where('inStock', isEqualTo: true)
+  .where('rating', isGreaterThan: 3.5)
+  .orderBy('rating', descending: true)
+  .limit(5)
+  .snapshots();
+```
+
+---
+
+## 💻 Code Implementation Examples
+
+### Collection Query with Price Filter
+```dart
+StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+  stream: FirebaseFirestore.instance
+    .collection('products')
+    .where('price', isGreaterThanOrEqualTo: minPrice)
+    .where('price', isLessThanOrEqualTo: maxPrice)
+    .snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    }
+    
+    final docs = snapshot.data!.docs;
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        final data = docs[index].data();
+        return ProductCard(product: Product.fromJson(data));
+      },
+    );
+  },
+);
+```
+
+### Multiple Filters with Sorting
+```dart
+stream: FirebaseFirestore.instance
+  .collection('products')
+  .where('category', isEqualTo: 'Ceramics')
+  .where('inStock', isEqualTo: true)
+  .orderBy('price', descending: false)
+  .limit(10)
+  .snapshots(),
+```
+
+### Dynamic Query Building
+```dart
+Stream<QuerySnapshot<Map<String, dynamic>>> _getQueryStream() {
+  Query<Map<String, dynamic>> query = 
+    FirebaseFirestore.instance.collection('products');
+
+  switch (selectedQuery) {
+    case 'High Rated (>4.0)':
+      return query
+        .where('rating', isGreaterThan: 4.0)
+        .snapshots();
+    case 'Sorted by Price':
+      return query
+        .orderBy('price', descending: descending)
+        .snapshots();
+    default:
+      return query.snapshots();
+  }
+}
+```
+
+---
+
+## 🎛️ Interactive Query Controls
+
+The app features dynamic query controls allowing users to:
+
+- **Select Query Type**: Dropdown with 9 different query options
+- **Adjust Price Range**: Slider for minimum/maximum price filtering
+- **Choose Category**: Dropdown for product category filtering
+- **Toggle Sort Order**: Switch between ascending/descending
+- **Set Result Limits**: Slider to control number of results (1-50)
+- **Sample Data Management**: Populate/clear Firestore test data
+
+---
+
+## 📊 Performance Optimizations
+
+### ✅ Efficient Querying
+- **Indexed Fields**: All query fields are properly indexed
+- **Result Limiting**: Using `.limit()` to reduce bandwidth
+- **Targeted Filtering**: Fetching only relevant documents
+- **Real-time Updates**: StreamBuilder for live data synchronization
+
+### ✅ Error Handling
+- **Connection State Checks**: Proper loading indicators
+- **Empty State Management**: User-friendly empty data messages
+- **Query Error Display**: Clear error messages with retry options
+- **Index Error Prevention**: Structured queries to avoid index issues
+
+---
+
+## 🧠 Reflection
+
+### Why Sorting/Filtering Improves UX
+Efficient querying dramatically improves user experience by reducing loading times and displaying only relevant data. Instead of downloading hundreds of products and filtering locally, Firestore queries fetch exactly what users need. This approach scales beautifully from small datasets to enterprise-level applications with millions of documents.
+
+### Query Best Practices Applied
+- **Compound Queries**: Combining where clauses with orderBy for complex filtering
+- **Index-Friendly Design**: Structuring queries to work efficiently with Firestore indexes
+- **Pagination Ready**: Using limit() for future pagination implementation
+- **Real-time Sync**: StreamBuilder ensures UI stays synchronized with database changes
+
+### Challenges Encountered
+The main challenge was ensuring query compatibility with Firestore's indexing requirements. Complex queries combining multiple where clauses with orderBy require composite indexes. The solution was designing queries that work with Firestore's automatic indexing or clearly documenting when manual index creation is needed.
+
+### Learning Outcomes
+This implementation demonstrates how modern NoSQL databases like Firestore enable sophisticated querying similar to SQL databases while maintaining scalability and real-time capabilities. The combination of filtering, sorting, and limiting creates powerful data retrieval patterns essential for professional mobile applications.
+
+---
+
+## 🎥 Demo Features
+
+The Firestore Queries screen includes:
+- ✅ 9 different query types demonstrating various Firestore capabilities
+- ✅ Interactive controls for dynamic query building
+- ✅ Real-time results that update as Firestore data changes
+- ✅ Sample data management for easy testing
+- ✅ Professional error handling and loading states
+- ✅ Performance optimized with proper indexing
+
+---
+
+
 
 
 
