@@ -563,6 +563,132 @@ Login and signup actions work without backend configuration
 Firebase Authentication simplifies user management by handling security, validation, and session management automatically. Compared to custom authentication systems, Firebase provides built-in security, scalability, and reliability. The main challenge was handling initialization order and managing authentication states correctly.
 
 
+# Real-Time Sync with Firestore Snapshot Listeners
+
+## ✅ Project Title
+**CraftConnect – Real-Time Firestore Sync**
+
+---
+
+## 📡 Understanding Snapshot Listeners
+
+Firestore snapshot listeners provide **live data synchronization**. Whenever a document or collection changes, the listener emits a new snapshot and the UI rebuilds instantly.
+
+### ✅ Collection Snapshot Listener (Real-Time Collection Updates)
+Listens to all documents in a collection and triggers whenever a document is added, updated, or deleted.
+
+```dart
+FirebaseFirestore.instance
+  .collection('tasks')
+  .snapshots();
+```
+
+### ✅ Document Snapshot Listener (Real-Time Single Document Updates)
+Listens to a single document and triggers on field changes or server updates.
+
+```dart
+FirebaseFirestore.instance
+  .collection('users')
+  .doc(userId)
+  .snapshots();
+```
+
+---
+
+## ⚡ StreamBuilder for Real-Time UI
+
+StreamBuilder rebuilds the UI automatically whenever Firestore emits a new snapshot.
+
+### ✅ Collection Listener with StreamBuilder
+```dart
+StreamBuilder(
+  stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    }
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return Text('No tasks available');
+    }
+
+    final docs = snapshot.data!.docs;
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        return ListTile(title: Text(docs[index]['title']));
+      },
+    );
+  },
+);
+```
+
+### ✅ Document Listener with StreamBuilder
+```dart
+StreamBuilder(
+  stream: FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return CircularProgressIndicator();
+    final data = snapshot.data!.data()!;
+    return Text("Name: ${data['name']}");
+  },
+);
+```
+
+---
+
+## 🧩 App Implementation (Real-Time UI)
+
+The Home Screen now includes:
+
+- **Live profile updates** from `users/{uid}` using a document snapshot listener
+- **Live task list updates** from `tasks` collection using a collection listener
+
+These streams power real-time UI updates using `StreamBuilder` and `.snapshots()`.
+
+---
+
+## 📸 Screenshots
+
+### Firestore Console Updates
+![Firestore Console](screenshots/firestore_console_updates.png)
+
+### App UI Updating Instantly
+![Real-Time UI](screenshots/realtime_ui_updates.png)
+
+---
+
+## 🧠 Reflection
+
+### Why Real-Time Sync Improves UX
+- Users see changes instantly without manual refresh
+- Feels modern and responsive (like chat or live dashboards)
+- Improves engagement and trust in the app
+
+### How Firestore’s `.snapshots()` Simplifies Live Updates
+- No manual polling or refresh logic required
+- StreamBuilder handles rebuilds automatically
+- Easy to combine loading, empty, and error states
+
+### Challenges Faced
+- Ensuring UI handles empty data safely
+- Avoiding crashes on missing fields
+- Structuring Firestore docs for consistent rendering
+
+---
+
+## ✅ Testing Real-Time Sync
+
+1. Open Firebase Console → Firestore
+2. Add or edit a document inside `tasks`
+3. Update fields inside `users/{uid}`
+4. Watch the app update instantly without refresh
+
+---
+
+
 
 
 
