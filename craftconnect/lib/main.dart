@@ -18,10 +18,19 @@ import 'screens/animation_demo_screen.dart';
 import 'screens/state_management_demo.dart';
 import 'screens/stateless_stateful_demo.dart';
 import 'screens/dev_tools_demo_screen.dart';
+import 'screens/firestore_tasks_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  } catch (e) {
+    debugPrint('Firebase init error: $e');
+  }
+
   runApp(const CraftConnectApp());
 }
 
@@ -44,26 +53,22 @@ class CraftConnectApp extends StatelessWidget {
         ),
       ),
 
-      // 🔥 AUTH FLOW ENTRY POINT - PERSISTENT SESSION HANDLING
+      // 🔥 AUTH FLOW ENTRY POINT
       home: StreamBuilder<User?>(
         stream: FirebaseAuth.instance.authStateChanges(),
         builder: (context, snapshot) {
-          // Show splash screen while checking authentication state
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const SplashScreen();
           }
 
-          // If user is authenticated, go to HomeScreen
           if (snapshot.hasData) {
             return const HomeScreen();
           }
 
-          // If no user is authenticated, go to AuthScreen
           return AuthScreen();
         },
       ),
 
-      // ✅ EXISTING ROUTES (UNCHANGED)
       routes: {
         '/home': (context) => const HomeScreen(),
         '/second': (context) => const SecondScreen(),
@@ -75,6 +80,7 @@ class CraftConnectApp extends StatelessWidget {
         '/state-management': (context) => const StateManagementDemo(),
         '/stateless-vs-stateful': (context) => const DemoScreen(),
         '/dev-tools': (context) => const DevToolsDemoScreen(),
+        '/firestore-tasks': (context) => const FirestoreTasksScreen(),
       },
     );
   }
