@@ -648,7 +648,16 @@ The Home Screen now includes:
 
 These streams power real-time UI updates using `StreamBuilder` and `.snapshots()`.
 
----
+    final docs = snapshot.data!.docs;
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        return ListTile(title: Text(docs[index]['title']));
+      },
+    );
+  },
+);
+```
 
 ## 📸 Screenshots
 
@@ -677,7 +686,10 @@ These streams power real-time UI updates using `StreamBuilder` and `.snapshots()
 - Avoiding crashes on missing fields
 - Structuring Firestore docs for consistent rendering
 
----
+The Home Screen now includes:
+
+- **Live profile updates** from `users/{uid}` using a document snapshot listener
+- **Live task list updates** from `tasks` collection using a collection listener
 
 ## ✅ Testing Real-Time Sync
 
