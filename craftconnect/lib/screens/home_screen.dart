@@ -29,13 +29,18 @@ class HomeScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    const Icon(Icons.check_circle,
-                        size: 70, color: Colors.teal),
+                    const Icon(
+                      Icons.check_circle,
+                      size: 70,
+                      color: Colors.teal,
+                    ),
                     const SizedBox(height: 10),
                     const Text(
                       "Welcome Back!",
-                      style:
-                          TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 8),
                     Text(user?.email ?? "Unknown User"),
@@ -56,13 +61,17 @@ class HomeScreen extends StatelessWidget {
                   children: [
                     const Text(
                       "Session Information",
-                      style:
-                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     const SizedBox(height: 10),
                     _buildInfoRow("User ID", user?.uid ?? "N/A"),
-                    _buildInfoRow("Email Verified",
-                        user?.emailVerified == true ? "Yes" : "No"),
+                    _buildInfoRow(
+                      "Email Verified",
+                      user?.emailVerified == true ? "Yes" : "No",
+                    ),
                   ],
                 ),
               ),
@@ -83,7 +92,16 @@ class HomeScreen extends StatelessWidget {
               },
               child: const Text('Firestore Write Demo'),
             ),
-
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/push-notifications');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Push Notifications Demo'),
+            ),
           ],
         ),
       ),
@@ -99,8 +117,10 @@ class HomeScreen extends StatelessWidget {
         children: [
           SizedBox(
             width: 120,
-            child: Text("$label:",
-                style: const TextStyle(fontWeight: FontWeight.bold)),
+            child: Text(
+              "$label:",
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
           Expanded(child: Text(value)),
         ],
