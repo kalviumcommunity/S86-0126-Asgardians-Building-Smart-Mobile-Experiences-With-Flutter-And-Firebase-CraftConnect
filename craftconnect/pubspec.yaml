@@ -20,6 +20,9 @@ dependencies:
   # Cloud Firestore (Write & Update operations)
   cloud_firestore: ^6.1.2
 
+  # Firebase Cloud Messaging (Push Notifications)
+  firebase_messaging: ^15.1.6
+
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

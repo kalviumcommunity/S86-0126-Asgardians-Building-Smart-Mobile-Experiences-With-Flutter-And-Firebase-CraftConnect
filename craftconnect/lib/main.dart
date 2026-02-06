@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firebase_options.dart';
+import 'services/notification_service.dart';
 
 // Screens
 import 'screens/auth_screen.dart';
@@ -21,8 +22,7 @@ import 'screens/dev_tools_demo_screen.dart';
 import 'screens/firestore_tasks_screen.dart';
 import 'screens/firestore_write_screen.dart';
 import 'screens/realtime_tasks_screen.dart';
-
-
+import 'screens/push_notification_demo_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,6 +31,9 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // Initialize Push Notifications
+    await NotificationService().initialize();
   } catch (e) {
     debugPrint('Firebase init error: $e');
   }
@@ -87,7 +90,7 @@ class CraftConnectApp extends StatelessWidget {
         '/firestore-tasks': (context) => const FirestoreTasksScreen(),
         '/firestore-write': (context) => const FirestoreWriteScreen(),
         '/realtime-tasks': (context) => const RealtimeTasksScreen(),
-
+        '/push-notifications': (context) => const PushNotificationDemoScreen(),
       },
     );
   }
