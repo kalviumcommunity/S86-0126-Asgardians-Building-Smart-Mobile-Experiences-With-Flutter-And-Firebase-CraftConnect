@@ -840,6 +840,26 @@ Real-time sync behavior was confirmed
 Secure write operations are essential to protect application data from unauthorized access and corruption. Understanding the difference between add, set, and update helped in choosing the correct operation for each scenario. Proper validation and Firestore rules ensure data consistency, scalability, and security in production-ready applications.
 
 
+# Implementing Real-Time Sync
+
+## Description
+
+This task demonstrates how Cloud Firestore is used to write data securely and listen to real-time updates in the CraftConnect Flutter application. The app allows users to add tasks to Firestore and instantly reflect those changes in the UI using Firestore snapshot listeners.
+
+## Application Flow
+
+User logs in using Firebase Authentication
+Home Screen displays user session information
+User adds a task using the form on Home Screen
+Task is written securely to Firestore
+Real-time task list updates instantly without refres
+Firestore Console reflects changes immediately
+
+### Reflection
+
+Real-time synchronization significantly improves user experience by keeping the UI in sync with database changes automatically. Firestore’s .snapshots() API simplifies live updates and eliminates the need for manual refresh logic. The biggest challenge was maintaining clean widget structure while integrating streams, but proper separation of concerns helped keep the code manageable and scalable.
+
+
 
 
 

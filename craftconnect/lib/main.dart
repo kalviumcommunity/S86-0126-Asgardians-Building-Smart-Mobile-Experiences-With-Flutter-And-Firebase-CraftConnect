@@ -20,6 +20,8 @@ import 'screens/stateless_stateful_demo.dart';
 import 'screens/dev_tools_demo_screen.dart';
 import 'screens/firestore_tasks_screen.dart';
 import 'screens/firestore_write_screen.dart';
+import 'screens/realtime_tasks_screen.dart';
+
 
 
 void main() async {
@@ -84,6 +86,8 @@ class CraftConnectApp extends StatelessWidget {
         '/dev-tools': (context) => const DevToolsDemoScreen(),
         '/firestore-tasks': (context) => const FirestoreTasksScreen(),
         '/firestore-write': (context) => const FirestoreWriteScreen(),
+        '/realtime-tasks': (context) => const RealtimeTasksScreen(),
+
       },
     );
   }
