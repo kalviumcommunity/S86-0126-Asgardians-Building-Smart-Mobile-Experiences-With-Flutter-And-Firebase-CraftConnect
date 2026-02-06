@@ -1,0 +1,190 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // ===== HELPER FUNCTIONS =====
+    
+    // Check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Check if user is owner of the resource
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Check if user is admin (requires 'isAdmin' field in user document)
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Check if document exists
+    function documentExists(path) {
+      return exists(path);
+    }
+    
+    // ===== USER PROFILES =====
+    
+    match /users/{userId} {
+      // Anyone (authenticated) can read user profiles (public data)
+      allow read: if isAuthenticated();
+      
+      // Users can only create/update their own profile
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      
+      // Only admins can delete user profiles
+      allow delete: if isAdmin();
+      
+      // ===== PRIVATE USER DATA (Subcollection) =====
+      
+      match /private/{document=**} {
+        // Only the owner can read/write their private data
+        allow read, write: if isOwner(userId);
+      }
+      
+      // ===== USER SETTINGS (Subcollection) =====
+      
+      match /settings/{settingId} {
+        // Only owner can manage their settings
+        allow read, write: if isOwner(userId);
+      }
+    }
+    
+    // ===== POSTS =====
+    
+    match /posts/{postId} {
+      // Anyone (authenticated) can read posts
+      allow read: if isAuthenticated();
+      
+      // Authenticated users can create posts
+      // Ensure authorId matches the authenticated user
+      allow create: if isAuthenticated() && 
+                      request.resource.data.authorId == request.auth.uid;
+      
+      // Only post author can update their own post
+      allow update: if isAuthenticated() && 
+                      resource.data.authorId == request.auth.uid;
+      
+      // Post author or admin can delete
+      allow delete: if isAuthenticated() && 
+                      (resource.data.authorId == request.auth.uid || isAdmin());
+      
+      // ===== POST COMMENTS (Subcollection) =====
+      
+      match /comments/{commentId} {
+        // Anyone can read comments
+        allow read: if isAuthenticated();
+        
+        // Authenticated users can create comments
+        allow create: if isAuthenticated() &&
+                        request.resource.data.authorId == request.auth.uid;
+        
+        // Only comment author can update/delete their comment
+        allow update, delete: if isAuthenticated() &&
+                                resource.data.authorId == request.auth.uid;
+      }
+    }
+    
+    // ===== ADMIN-ONLY COLLECTIONS =====
+    
+    match /admin/{document=**} {
+      // Only admins can read/write admin data
+      allow read, write: if isAdmin();
+    }
+    
+    // ===== PUBLIC READ-ONLY DATA =====
+    
+    match /public/{document=**} {
+      // Anyone can read public data
+      allow read: if true;
+      
+      // Only admins can write public data
+      allow write: if isAdmin();
+    }
+    
+    // ===== REAL-TIME CHAT EXAMPLE =====
+    
+    match /chatRooms/{roomId} {
+      // Users can read rooms they're a member of
+      allow read: if isAuthenticated() &&
+                    request.auth.uid in resource.data.memberIds;
+      
+      // Users can create chat rooms
+      allow create: if isAuthenticated() &&
+                      request.auth.uid in request.resource.data.memberIds;
+      
+      // Only members can update room
+      allow update: if isAuthenticated() &&
+                      request.auth.uid in resource.data.memberIds;
+      
+      // Only room creator can delete
+      allow delete: if isAuthenticated() &&
+                      resource.data.createdBy == request.auth.uid;
+      
+      // ===== CHAT MESSAGES (Subcollection) =====
+      
+      match /messages/{messageId} {
+        // Only room members can read messages
+        allow read: if isAuthenticated() &&
+                      request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.memberIds;
+        
+        // Only room members can send messages
+        allow create: if isAuthenticated() &&
+                        request.auth.uid in get(/databases/$(database)/documents/chatRooms/$(roomId)).data.memberIds &&
+                        request.resource.data.senderId == request.auth.uid;
+        
+        // Only message sender can update/delete
+        allow update, delete: if isAuthenticated() &&
+                                resource.data.senderId == request.auth.uid;
+      }
+    }
+    
+    // ===== USER ACTIVITIES (Time-based security) =====
+    
+    match /activities/{activityId} {
+      // Read allowed for authenticated users
+      allow read: if isAuthenticated();
+      
+      // Create allowed for authenticated users with rate limiting
+      // (In production, implement rate limiting via Cloud Functions)
+      allow create: if isAuthenticated() &&
+                      request.resource.data.userId == request.auth.uid;
+      
+      // No updates or deletes allowed
+      allow update, delete: if false;
+    }
+    
+    // ===== VALIDATION EXAMPLES =====
+    
+    match /products/{productId} {
+      // Anyone can read products
+      allow read: if true;
+      
+      // Only authenticated users can create products with validation
+      allow create: if isAuthenticated() &&
+                      // Validate required fields
+                      request.resource.data.keys().hasAll(['name', 'price', 'createdBy']) &&
+                      // Validate data types
+                      request.resource.data.name is string &&
+                      request.resource.data.price is number &&
+                      // Validate price is positive
+                      request.resource.data.price > 0 &&
+                      // Ensure createdBy matches current user
+                      request.resource.data.createdBy == request.auth.uid;
+      
+      // Owner or admin can update
+      allow update: if isAuthenticated() &&
+                      (resource.data.createdBy == request.auth.uid || isAdmin());
+      
+      // Admin only can delete
+      allow delete: if isAdmin();
+    }
+    
+    // ===== BLOCK ALL OTHER PATHS =====
+    // Any path not explicitly allowed above will be denied
+  }
+}

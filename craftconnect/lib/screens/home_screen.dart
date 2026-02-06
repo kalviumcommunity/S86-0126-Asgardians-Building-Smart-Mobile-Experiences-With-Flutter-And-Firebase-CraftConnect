@@ -102,6 +102,16 @@ class HomeScreen extends StatelessWidget {
               ),
               child: const Text('Push Notifications Demo'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/firestore-security');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Firestore Security Demo'),
+            ),
           ],
         ),
       ),
