@@ -860,6 +860,38 @@ Firestore Console reflects changes immediately
 Real-time synchronization significantly improves user experience by keeping the UI in sync with database changes automatically. Firestore’s .snapshots() API simplifies live updates and eliminates the need for manual refresh logic. The biggest challenge was maintaining clean widget structure while integrating streams, but proper separation of concerns helped keep the code manageable and scalable.
 
 
+# Triggering Cloud Functions for Serverless Event Handling
+
+## Overview
+Cloud Functions were set up to handle backend logic in a serverless manner. These functions are designed to execute automatically in response to client calls or Firestore database events.
+
+## Implementation
+- Firebase Cloud Functions were initialized using Firebase CLI
+- A callable Cloud Function was created to demonstrate client-triggered backend execution
+- An event-based Firestore trigger was implemented to react to database changes
+- Pre-deployment checks were successfully executed
+
+## Deployment Note
+Cloud Functions deployment requires the Firebase project to be on the **Blaze (pay-as-you-go)** plan in order to enable required APIs such as:
+- cloudfunctions.googleapis.com
+- cloudbuild.googleapis.com
+- artifactregistry.googleapis.com
+
+Since this is an academic project, the functions were not deployed to production to avoid unnecessary billing. However, the complete setup, code, and configuration were successfully implemented and verified locally.
+
+### Learning Outcome
+This task provided hands-on experience with:
+- Serverless backend architecture
+- Event-driven programming
+- Firebase Cloud Functions lifecycle
+- Understanding production deployment constraints
+
+### Reflection
+Using Cloud Functions eliminates the need to manage backend servers and allows automatic execution of logic in response to app or database events. While deployment requires a paid plan, the serverless model significantly reduces operational overhead and scales automatically. This approach is ideal for real-time apps, notifications, and background processing.
+
+
+
+
 
 
 
