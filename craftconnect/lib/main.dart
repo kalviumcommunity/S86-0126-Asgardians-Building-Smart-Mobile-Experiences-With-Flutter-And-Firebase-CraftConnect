@@ -24,6 +24,7 @@ import 'screens/firestore_write_screen.dart';
 import 'screens/realtime_tasks_screen.dart';
 import 'screens/push_notification_demo_screen.dart';
 import 'screens/firestore_security_demo_screen.dart';
+import 'screens/maps_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -93,6 +94,7 @@ class CraftConnectApp extends StatelessWidget {
         '/realtime-tasks': (context) => const RealtimeTasksScreen(),
         '/push-notifications': (context) => const PushNotificationDemoScreen(),
         '/firestore-security': (context) => const FirestoreSecurityDemoScreen(),
+        '/maps': (context) => const MapsScreen(),
       },
     );
   }

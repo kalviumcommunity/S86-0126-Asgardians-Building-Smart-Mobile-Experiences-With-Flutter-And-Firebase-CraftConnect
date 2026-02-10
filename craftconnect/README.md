@@ -1170,6 +1170,197 @@ match /users/{uid} {
 
 Support is available via **Student App | Kalvium** if blockers arise.
 
+## 🗺️ Google Maps Integration with Flutter
+
+Location-based applications like delivery tracking, ride-booking, and navigation services depend on interactive map functionality. CraftConnect now includes a comprehensive Google Maps implementation showcasing craft shop discovery, user location services, and interactive mapping features.
+
+### Implementation Overview
+
+Our Google Maps integration demonstrates professional Flutter development with location services, interactive maps, and real-world data visualization for the craft marketplace ecosystem.
+
+**Key Features Implemented:**
+- ✅ Interactive Google Maps with pan, zoom, and gesture controls
+- ✅ Real-time user location tracking with permission handling
+- ✅ Custom craft shop markers with detailed info windows  
+- ✅ Location-based shop discovery with category filtering
+- ✅ Cross-platform configuration for Android and iOS
+- ✅ Comprehensive error handling and permission management
+
+### Technical Setup Completed
+
+#### Dependencies Added to [pubspec.yaml](pubspec.yaml)
+```yaml
+dependencies:
+  google_maps_flutter: ^2.8.0
+  location: ^5.0.3
+  permission_handler: ^13.0.1
+```
+
+#### Android Configuration
+**Manifest Permissions** in `android/app/src/main/AndroidManifest.xml`:
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+<meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
+```
+
+#### iOS Configuration
+**Permissions** in `ios/Runner/Info.plist`:
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>CraftConnect needs location access to show nearby craft shops and provide location-based services.</string>
+```
+
+**AppDelegate Setup** in `ios/Runner/AppDelegate.swift`:
+```swift
+import GoogleMaps
+GMSServices.provideAPIKey("YOUR_GOOGLE_MAPS_API_KEY_HERE")
+```
+
+### Maps Screen Implementation
+
+**Location**: [lib/screens/maps_screen.dart](lib/screens/maps_screen.dart)
+
+**Navigation**: Access via Home Screen → "🗺️ Google Maps Demo" button
+
+Our implementation showcases:
+
+#### Interactive Map Display
+```dart
+GoogleMap(
+  initialCameraPosition: CameraPosition(
+    target: LatLng(37.7749, -122.4194), // San Francisco
+    zoom: 12,
+  ),
+  markers: _markers,
+  myLocationEnabled: true,
+  onMapCreated: (GoogleMapController controller) {
+    _controller.complete(controller);
+  },
+);
+```
+
+#### Dynamic Craft Shop Markers
+- **Mumbai Pottery Studio** (Orange marker) - Traditional ceramic crafts
+- **Delhi Textile Hub** (Purple marker) - Handwoven fabrics & embroidery  
+- **Jaipur Jewelry Market** (Yellow marker) - Traditional silver & gemstone jewelry
+- **Bangalore Woodcraft Studio** (Green marker) - Handcrafted wooden furniture
+
+#### User Location Services
+```dart
+Future<void> _getCurrentLocation() async {
+  LocationData locationData = await location.getLocation();
+  setState(() {
+    _currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+  });
+  _addCurrentLocationMarker();
+}
+```
+
+#### Advanced Features
+- **Permission Handling**: Graceful permission requests with fallback dialogs
+- **Marker Interactions**: Tap markers to view shop details in bottom sheets
+- **Camera Controls**: Programmatic navigation to specific locations
+- **Loading States**: Professional loading indicators during map initialization
+- **Error Handling**: Comprehensive error handling for location services
+
+### Real-World Integration Scenarios
+
+#### CraftConnect Business Logic
+1. **Artisan Discovery**: Show nearby craftspeople on map view
+2. **Delivery Tracking**: Real-time order delivery with route visualization
+3. **Workshop Locations**: Display craft classes and workshop schedules
+4. **Service Areas**: Visualize craftsperson coverage areas and availability
+
+#### Navigation Integration
+```dart
+// Navigate from home screen
+ElevatedButton(
+  onPressed: () {
+    Navigator.pushNamed(context, '/maps');
+  },
+  child: const Text('🗺️ Google Maps Demo'),
+);
+```
+
+### API Key Setup Instructions
+
+1. **Google Cloud Console Setup**:
+   - Visit [Google Cloud Console](https://console.cloud.google.com)
+   - Create new project or select existing one
+   - Enable APIs: Maps SDK for Android, Maps SDK for iOS, Geocoding API
+
+2. **API Key Generation**:
+   - Go to APIs & Services → Credentials
+   - Create API Key
+   - Restrict key to required APIs for security
+
+3. **Platform Configuration**:
+   - Replace `YOUR_GOOGLE_MAPS_API_KEY_HERE` in AndroidManifest.xml
+   - Replace `YOUR_GOOGLE_MAPS_API_KEY_HERE` in AppDelegate.swift
+   - Enable billing in Google Cloud Console for production usage
+
+### Testing & Validation
+
+**Verified Functionality:**
+✅ Maps load correctly on Android emulator  
+✅ Location permissions request properly  
+✅ Custom markers display with correct colors and info windows  
+✅ User location tracking works when permissions granted  
+✅ Tap gestures trigger marker detail sheets  
+✅ Camera animations navigate smoothly between locations  
+✅ Error handling displays helpful messages for permission issues  
+
+### Common Issues & Solutions
+
+| Issue | Root Cause | Solution |
+|-------|------------|----------|
+| Blank map on Android | Missing API key | Add key to AndroidManifest.xml metadata |
+| "For development only" watermark | Billing not enabled | Enable billing in Google Cloud Console |
+| iOS app crashes on map load | Missing API key in AppDelegate | Add `GMSServices.provideAPIKey()` |
+| Location permission denied | User rejected permission | Implement permission request with settings redirect |
+| API key blocked error | Wrong API restrictions | Update API key restrictions or regenerate |
+
+### Performance Optimizations
+
+- **Efficient Marker Management**: Only load visible markers to reduce memory usage
+- **Location Caching**: Cache user location to minimize GPS calls
+- **Gesture Optimization**: Configured smooth gesture recognizers for responsive interactions
+- **Loading States**: Professional loading indicators prevent UI freezing
+- **Memory Management**: Proper disposal of map controllers and location services
+
+### Future Enhancement Opportunities
+
+- **Route Planning**: Integrate directions API for navigation to craft shops
+- **Geofencing**: Notify users when entering craft shop areas
+- **Location Analytics**: Track popular craft shop visits and user patterns
+- **Offline Maps**: Cache map tiles for offline browsing
+- **Search Integration**: Add places search for finding specific craft types
+
+### Learning Resources
+- [Google Maps Flutter Documentation](https://pub.dev/packages/google_maps_flutter)
+- [Google Maps Platform Documentation](https://developers.google.com/maps)
+- [Flutter Location Services](https://pub.dev/packages/location)
+- [Google Cloud Console](https://console.cloud.google.com)
+
+## 🎯 Kalvium MVL Assignment - Google Maps Integration
+- **Module:** Integrating Google Maps SDK for Flutter (Brain score 3.40)
+- **Goal:** Achieve ≥60% completion within 180 minutes
+- **Focus Areas:**
+  1. Configure Google Maps API keys for Android/iOS platforms
+  2. Implement interactive map display with camera positioning
+  3. Enable user location access with proper permissions handling
+  4. Add custom markers with info windows and click handlers
+  5. Demonstrate map gestures (pan, zoom, rotate) and UI controls
+
+**CTA:** Access the assignment container and select **Start Assignment** to begin.
+
+Support is available via **Student App | Kalvium** if blockers arise.
+
 ---
 
 **Happy Coding! 🎉**
