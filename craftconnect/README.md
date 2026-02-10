@@ -472,12 +472,108 @@ DevTools enables us to catch issues during development rather than after deploym
 **Module:** Building Smart Mobile Experiences with Flutter and Firebase  
 **Project:** CraftConnect
 
-## 📝 Commit Message
+## 📝 Git Commands Reference
+
+### Branch Management
+```bash
+# Create and switch to new branch
+git checkout -b feature/new-feature
+git checkout -b fix/bug-fix
+
+# List all branches
+git branch -a
+
+# Switch to existing branch
+git checkout main
+git checkout develop
+
+# Delete branch (locally)
+git branch -d feature/old-feature
+
+# Delete branch (remotely)
+git push origin --delete feature/old-feature
+```
+
+### Adding & Committing Changes
+```bash
+# Add specific files
+git add lib/main.dart
+git add lib/screens/
+
+# Add all changes
+git add .
+
+# Add and commit in one line
+git commit -am "feat: add new authentication flow"
+
+# Commit with detailed message
+git commit -m "feat: implement Firebase authentication
+
+- Add email/password sign-in
+- Create user registration flow  
+- Add logout functionality
+- Update UI with auth state"
+```
+
+### Pushing Changes
+```bash
+# Push to remote branch (first time)
+git push -u origin feature/auth-implementation
+
+# Push to existing remote branch
+git push origin feature/auth-implementation
+
+# Push current branch
+git push
+
+# Force push (use carefully)
+git push --force-with-lease
+```
+
+### Workflow Commands
+```bash
+# Complete workflow for new feature
+git checkout -b feature/firestore-security
+git add .
+git commit -m "feat: implement Firestore security rules"
+git push -u origin feature/firestore-security
+
+# Quick commit and push (existing branch)
+git add .
+git commit -m "docs: update README with security examples"
+git push
+```
+
+### Useful Status Commands
+```bash
+# Check current status
+git status
+
+# View commit history
+git log --oneline
+
+# See what changed
+git diff
+
+# See staged changes
+git diff --cached
+```
+
+## 📝 Commit Message Examples
 
 ```bash
 git add .
+git commit -m "feat: add Firebase authentication setup"
+git push origin feature/auth-setup
+
+git commit -m "fix: resolve Firestore permission denied error"
+git push origin fix/firestore-rules
+
+git commit -m "docs: update README with security best practices"
+git push origin docs/security-guide
+
 git commit -m "chore: demonstrated hot reload, debug console, and DevTools usage"
-git push origin <your-branch-name>
+git push origin feature/devtools-demo
 ```
 
 ## 🔗 Pull Request Template
@@ -924,6 +1020,346 @@ With Firebase SDKs properly integrated, you can now:
 - **Time Savings**: Minutes vs. hours for multi-platform setup
 - **Maintainability**: Easy to update and reconfigure when needed
 - **Professional Standard**: Industry best practice for Firebase integration
+
+## 🔒 Securing Firebase with Authentication & Firestore Rules
+
+Modern mobile apps store sensitive user data, so Firebase projects must move beyond permissive "test mode" to authenticated, rule-driven access before shipping.
+
+### Why Securing Firestore Matters
+- Protects documents from unauthorized reads/writes, preventing tampering and accidental deletion.
+- Ensures only signed-in users interact with the database, lowering the risk of spam or bot attacks.
+- Enables role-based permissions (admins vs. regular users) through custom claims.
+- Required before onboarding beta testers or production traffic.
+
+### Firebase Authentication Setup
+1. **Add dependencies** in [pubspec.yaml](pubspec.yaml):
+   ```yaml
+   dependencies:
+     firebase_core: ^latest
+     firebase_auth: ^latest
+     cloud_firestore: ^latest
+   ```
+2. **Install packages**: `flutter pub get`
+3. **Initialize Firebase** before `runApp()`:
+   ```dart
+   void main() async {
+     WidgetsFlutterBinding.ensureInitialized();
+     await Firebase.initializeApp(
+       options: DefaultFirebaseOptions.currentPlatform,
+     );
+     runApp(const CraftConnectApp());
+   }
+   ```
+4. **Enable providers** in Firebase Console → Authentication → Sign-in Methods.
+5. **Authenticate users** inside Flutter:
+   ```dart
+   final auth = FirebaseAuth.instance;
+
+   Future<UserCredential> signIn(String email, String password) {
+     return auth.signInWithEmailAndPassword(email: email, password: password);
+   }
+   ```
+
+### Writing Secure Firestore Rules
+
+Start from the default ruleset and progressively tighten access:
+
+```text
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true; // ❌ Test mode (never ship!)
+    }
+  }
+}
+```
+
+**Recommended baseline:** block anonymous writes and scope data to document owners.
+
+```text
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /adminTasks/{taskId} {
+      allow read, write: if request.auth != null
+        && request.auth.token.admin == true; // Restrict admin-only operations
+    }
+  }
+}
+```
+
+Key ideas:
+- `request.auth` must exist for any write to succeed (blocks anonymous writes).
+- Users can only touch their own `/users/{uid}` document, eliminating cross-account access.
+- Admin-only collections should check for a custom claim (e.g., `request.auth.token.admin`).
+
+### Firestore Access Patterns in Flutter
+
+```dart
+final uid = FirebaseAuth.instance.currentUser!.uid;
+final users = FirebaseFirestore.instance.collection('users');
+
+Future<void> writeProfile() async {
+  await users.doc(uid).set({
+    'name': 'John Doe',
+    'lastLogin': DateTime.now(),
+  });
+}
+
+Future<Map<String, dynamic>?> readProfile() async {
+  final doc = await users.doc(uid).get();
+  return doc.data();
+}
+```
+
+When rules reject the operation, Firestore throws a `FirebaseException` with `PERMISSION_DENIED`—surface this to the user or retry after re-authentication.
+
+### Testing Rules
+- **Rules Playground:** Firebase Console → Firestore → Rules → Playground; simulate authenticated/anonymous reads and writes with mock UIDs.
+- **Emulator Suite:** Script rule tests locally to verify `allow`/`deny` outcomes in CI.
+- **Edge Cases:** Test admin-only actions, revoked credentials, and attempts to write outside the authorized document path.
+
+### Minimal Service + Rule Pairing
+
+```dart
+class FirestoreService {
+  final auth = FirebaseAuth.instance;
+  final db = FirebaseFirestore.instance;
+
+  Future<void> updateUserProfile() async {
+    final uid = auth.currentUser!.uid;
+    await db.collection('users').doc(uid).set({'updatedAt': DateTime.now()});
+  }
+}
+```
+
+```text
+match /users/{uid} {
+  allow read, write: if request.auth != null && request.auth.uid == uid;
+}
+```
+
+### Troubleshooting Cheatsheet
+
+| Issue | Root Cause | Fix |
+| --- | --- | --- |
+| `PERMISSION_DENIED` | Rules reject request | Verify `request.auth.uid`, document path, and rule logic |
+| Writes fail for guests | User not signed in | Redirect to login, then retry write |
+| Rules still open | Project left in test mode | Replace with authenticated rules + deploy |
+| Google Sign-In fails on release | Missing SHA-1/SHA-256 | Add fingerprints in Firebase Console and re-download configs |
+
+### Focused Resources
+- [Cloud Firestore Security Rules](https://firebase.google.com/docs/firestore/security/get-started)
+- [Firebase Auth + Firestore Integration](https://firebase.flutter.dev/docs/firestore/usage/)
+- [Rules Simulator Guide](https://firebase.google.com/docs/rules/simulator)
+- [Firebase Auth Flutter Docs](https://firebase.flutter.dev/docs/auth/overview/)
+
+## 🎯 Kalvium MVL Assignment Snapshot
+- **Module:** Securing Firebase with Authentication & Firestore Rules (Brain score 3.39)
+- **Goal:** Complete the assignment with ≥60% accuracy within 180 minutes.
+- **CTA:** Launch the assignment container and select **Start Assignment** to begin.
+- **Focus Areas:**
+  1. Configure Firebase Authentication providers.
+  2. Block anonymous writes in Firestore rules.
+  3. Restrict admin operations via custom claims.
+  4. Demonstrate rule testing via the Rules Playground or Emulator Suite.
+  5. Document findings (tests run, edge cases, screenshots) for submission.
+
+Support is available via **Student App | Kalvium** if blockers arise.
+
+## 🗺️ Google Maps Integration with Flutter
+
+Location-based applications like delivery tracking, ride-booking, and navigation services depend on interactive map functionality. CraftConnect now includes a comprehensive Google Maps implementation showcasing craft shop discovery, user location services, and interactive mapping features.
+
+### Implementation Overview
+
+Our Google Maps integration demonstrates professional Flutter development with location services, interactive maps, and real-world data visualization for the craft marketplace ecosystem.
+
+**Key Features Implemented:**
+- ✅ Interactive Google Maps with pan, zoom, and gesture controls
+- ✅ Real-time user location tracking with permission handling
+- ✅ Custom craft shop markers with detailed info windows  
+- ✅ Location-based shop discovery with category filtering
+- ✅ Cross-platform configuration for Android and iOS
+- ✅ Comprehensive error handling and permission management
+
+### Technical Setup Completed
+
+#### Dependencies Added to [pubspec.yaml](pubspec.yaml)
+```yaml
+dependencies:
+  google_maps_flutter: ^2.8.0
+  location: ^5.0.3
+  permission_handler: ^13.0.1
+```
+
+#### Android Configuration
+**Manifest Permissions** in `android/app/src/main/AndroidManifest.xml`:
+```xml
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+
+<meta-data
+    android:name="com.google.android.geo.API_KEY"
+    android:value="YOUR_GOOGLE_MAPS_API_KEY_HERE" />
+```
+
+#### iOS Configuration
+**Permissions** in `ios/Runner/Info.plist`:
+```xml
+<key>NSLocationWhenInUseUsageDescription</key>
+<string>CraftConnect needs location access to show nearby craft shops and provide location-based services.</string>
+```
+
+**AppDelegate Setup** in `ios/Runner/AppDelegate.swift`:
+```swift
+import GoogleMaps
+GMSServices.provideAPIKey("YOUR_GOOGLE_MAPS_API_KEY_HERE")
+```
+
+### Maps Screen Implementation
+
+**Location**: [lib/screens/maps_screen.dart](lib/screens/maps_screen.dart)
+
+**Navigation**: Access via Home Screen → "🗺️ Google Maps Demo" button
+
+Our implementation showcases:
+
+#### Interactive Map Display
+```dart
+GoogleMap(
+  initialCameraPosition: CameraPosition(
+    target: LatLng(37.7749, -122.4194), // San Francisco
+    zoom: 12,
+  ),
+  markers: _markers,
+  myLocationEnabled: true,
+  onMapCreated: (GoogleMapController controller) {
+    _controller.complete(controller);
+  },
+);
+```
+
+#### Dynamic Craft Shop Markers
+- **Mumbai Pottery Studio** (Orange marker) - Traditional ceramic crafts
+- **Delhi Textile Hub** (Purple marker) - Handwoven fabrics & embroidery  
+- **Jaipur Jewelry Market** (Yellow marker) - Traditional silver & gemstone jewelry
+- **Bangalore Woodcraft Studio** (Green marker) - Handcrafted wooden furniture
+
+#### User Location Services
+```dart
+Future<void> _getCurrentLocation() async {
+  LocationData locationData = await location.getLocation();
+  setState(() {
+    _currentLocation = LatLng(locationData.latitude!, locationData.longitude!);
+  });
+  _addCurrentLocationMarker();
+}
+```
+
+#### Advanced Features
+- **Permission Handling**: Graceful permission requests with fallback dialogs
+- **Marker Interactions**: Tap markers to view shop details in bottom sheets
+- **Camera Controls**: Programmatic navigation to specific locations
+- **Loading States**: Professional loading indicators during map initialization
+- **Error Handling**: Comprehensive error handling for location services
+
+### Real-World Integration Scenarios
+
+#### CraftConnect Business Logic
+1. **Artisan Discovery**: Show nearby craftspeople on map view
+2. **Delivery Tracking**: Real-time order delivery with route visualization
+3. **Workshop Locations**: Display craft classes and workshop schedules
+4. **Service Areas**: Visualize craftsperson coverage areas and availability
+
+#### Navigation Integration
+```dart
+// Navigate from home screen
+ElevatedButton(
+  onPressed: () {
+    Navigator.pushNamed(context, '/maps');
+  },
+  child: const Text('🗺️ Google Maps Demo'),
+);
+```
+
+### API Key Setup Instructions
+
+1. **Google Cloud Console Setup**:
+   - Visit [Google Cloud Console](https://console.cloud.google.com)
+   - Create new project or select existing one
+   - Enable APIs: Maps SDK for Android, Maps SDK for iOS, Geocoding API
+
+2. **API Key Generation**:
+   - Go to APIs & Services → Credentials
+   - Create API Key
+   - Restrict key to required APIs for security
+
+3. **Platform Configuration**:
+   - Replace `YOUR_GOOGLE_MAPS_API_KEY_HERE` in AndroidManifest.xml
+   - Replace `YOUR_GOOGLE_MAPS_API_KEY_HERE` in AppDelegate.swift
+   - Enable billing in Google Cloud Console for production usage
+
+### Testing & Validation
+
+**Verified Functionality:**
+✅ Maps load correctly on Android emulator  
+✅ Location permissions request properly  
+✅ Custom markers display with correct colors and info windows  
+✅ User location tracking works when permissions granted  
+✅ Tap gestures trigger marker detail sheets  
+✅ Camera animations navigate smoothly between locations  
+✅ Error handling displays helpful messages for permission issues  
+
+### Common Issues & Solutions
+
+| Issue | Root Cause | Solution |
+|-------|------------|----------|
+| Blank map on Android | Missing API key | Add key to AndroidManifest.xml metadata |
+| "For development only" watermark | Billing not enabled | Enable billing in Google Cloud Console |
+| iOS app crashes on map load | Missing API key in AppDelegate | Add `GMSServices.provideAPIKey()` |
+| Location permission denied | User rejected permission | Implement permission request with settings redirect |
+| API key blocked error | Wrong API restrictions | Update API key restrictions or regenerate |
+
+### Performance Optimizations
+
+- **Efficient Marker Management**: Only load visible markers to reduce memory usage
+- **Location Caching**: Cache user location to minimize GPS calls
+- **Gesture Optimization**: Configured smooth gesture recognizers for responsive interactions
+- **Loading States**: Professional loading indicators prevent UI freezing
+- **Memory Management**: Proper disposal of map controllers and location services
+
+### Future Enhancement Opportunities
+
+- **Route Planning**: Integrate directions API for navigation to craft shops
+- **Geofencing**: Notify users when entering craft shop areas
+- **Location Analytics**: Track popular craft shop visits and user patterns
+- **Offline Maps**: Cache map tiles for offline browsing
+- **Search Integration**: Add places search for finding specific craft types
+
+### Learning Resources
+- [Google Maps Flutter Documentation](https://pub.dev/packages/google_maps_flutter)
+- [Google Maps Platform Documentation](https://developers.google.com/maps)
+- [Flutter Location Services](https://pub.dev/packages/location)
+- [Google Cloud Console](https://console.cloud.google.com)
+
+## 🎯 Kalvium MVL Assignment - Google Maps Integration
+- **Module:** Integrating Google Maps SDK for Flutter (Brain score 3.40)
+- **Goal:** Achieve ≥60% completion within 180 minutes
+- **Focus Areas:**
+  1. Configure Google Maps API keys for Android/iOS platforms
+  2. Implement interactive map display with camera positioning
+  3. Enable user location access with proper permissions handling
+  4. Add custom markers with info windows and click handlers
+  5. Demonstrate map gestures (pan, zoom, rotate) and UI controls
+
+**CTA:** Access the assignment container and select **Start Assignment** to begin.
+
+Support is available via **Student App | Kalvium** if blockers arise.
 
 ---
 

@@ -12,7 +12,6 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("CraftConnect Home"),
         actions: [
-          // Logout button with confirmation
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => _showLogoutDialog(context),
@@ -22,46 +21,37 @@ class HomeScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Welcome message
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: Colors.teal.shade50,
-                borderRadius: BorderRadius.circular(15),
-                border: Border.all(color: Colors.teal.shade200),
-              ),
-              child: Column(
-                children: [
-                  Icon(Icons.check_circle, size: 80, color: Colors.teal),
-                  const SizedBox(height: 20),
-                  Text(
-                    "Welcome Back! 👋",
-                    style: TextStyle(
-                      fontSize: 28,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.teal.shade800,
+            // Welcome Card
+            Card(
+              elevation: 4,
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    const Icon(
+                      Icons.check_circle,
+                      size: 70,
+                      color: Colors.teal,
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    user?.email ?? "Unknown User",
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Colors.teal.shade600,
-                      fontWeight: FontWeight.w500,
+                    const SizedBox(height: 10),
+                    const Text(
+                      "Welcome Back!",
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    textAlign: TextAlign.center,
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Text(user?.email ?? "Unknown User"),
+                  ],
+                ),
               ),
             ),
 
             const SizedBox(height: 30),
 
-            // Session information card
+            // Session Info
             Card(
               elevation: 4,
               child: Padding(
@@ -69,29 +59,18 @@ class HomeScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
+                    const Text(
                       "Session Information",
                       style: TextStyle(
-                        fontSize: 20,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: Colors.teal.shade800,
                       ),
                     ),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 10),
                     _buildInfoRow("User ID", user?.uid ?? "N/A"),
                     _buildInfoRow(
                       "Email Verified",
                       user?.emailVerified == true ? "Yes" : "No",
-                    ),
-                    _buildInfoRow(
-                      "Creation Time",
-                      user?.metadata.creationTime?.toString().split('.')[0] ??
-                          "N/A",
-                    ),
-                    _buildInfoRow(
-                      "Last Sign In",
-                      user?.metadata.lastSignInTime?.toString().split('.')[0] ??
-                          "N/A",
                     ),
                   ],
                 ),
@@ -100,29 +79,48 @@ class HomeScreen extends StatelessWidget {
 
             const SizedBox(height: 30),
 
-            // Persistent session info
-            Container(
-              padding: const EdgeInsets.all(15),
-              decoration: BoxDecoration(
-                color: Colors.green.shade50,
-                borderRadius: BorderRadius.circular(10),
-                border: Border.all(color: Colors.green.shade200),
+            // Navigation Button
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/realtime-tasks');
+              },
+              child: const Text("Open Real-Time Tasks"),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/firestore-write');
+              },
+              child: const Text('Firestore Write Demo'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/push-notifications');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.orange,
+                foregroundColor: Colors.white,
               ),
-              child: Row(
-                children: [
-                  Icon(Icons.security, color: Colors.green.shade600),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      "Your session is persisted securely. You'll stay logged in even after restarting the app!",
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.green.shade800,
-                      ),
-                    ),
-                  ),
-                ],
+              child: const Text('Push Notifications Demo'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/firestore-security');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.purple,
+                foregroundColor: Colors.white,
               ),
+              child: const Text('Firestore Security Demo'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/maps');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('🗺️ Google Maps Demo'),
             ),
           ],
         ),
@@ -130,28 +128,21 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // -------- Helpers --------
+
   Widget _buildInfoRow(String label, String value) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 5),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 120,
             child: Text(
               "$label:",
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                color: Colors.grey,
-              ),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
@@ -160,29 +151,23 @@ class HomeScreen extends StatelessWidget {
   void _showLogoutDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Confirm Logout"),
-          content: const Text("Are you sure you want to logout?"),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                FirebaseAuth.instance.signOut();
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text("Logout"),
-            ),
-          ],
-        );
-      },
+      builder: (_) => AlertDialog(
+        title: const Text("Logout"),
+        content: const Text("Are you sure you want to logout?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text("Cancel"),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+              Navigator.pop(context);
+            },
+            child: const Text("Logout"),
+          ),
+        ],
+      ),
     );
   }
 }

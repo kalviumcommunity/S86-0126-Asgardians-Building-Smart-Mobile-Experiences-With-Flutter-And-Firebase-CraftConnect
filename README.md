@@ -563,116 +563,350 @@ Login and signup actions work without backend configuration
 Firebase Authentication simplifies user management by handling security, validation, and session management automatically. Compared to custom authentication systems, Firebase provides built-in security, scalability, and reliability. The main challenge was handling initialization order and managing authentication states correctly.
 
 
-# Cloud Firestore Database Design – CraftConnect
+# Real-Time Sync with Firestore Snapshot Listeners
 
-## 📌 Description
-This task focuses on designing a clear and scalable Cloud Firestore database structure for the CraftConnect application. The goal is to plan how app data will be stored using collections, documents, and subcollections without implementing CRUD operations yet. This schema is designed to support future features such as authentication, product listings, orders, and user interactions.
-
----
-
-## 📋 Data Requirements
-The CraftConnect app needs to store the following data:
-
-- User profiles (artisans and customers)
-- Product listings created by artisans
-- Product categories
-- Customer orders
-- Order items for each order
-- Timestamps for tracking creation and updates
+## ✅ Project Title
+**CraftConnect – Real-Time Firestore Sync**
 
 ---
 
-## 🗂️ Firestore Collections Structure
+## 📡 Understanding Snapshot Listeners
 
-### users (collection)
-Stores user account and profile information.
+Firestore snapshot listeners provide **live data synchronization**. Whenever a document or collection changes, the listener emits a new snapshot and the UI rebuilds instantly.
 
-**Document ID:** userId (Firebase Auth UID)
+### ✅ Collection Snapshot Listener (Real-Time Collection Updates)
+Listens to all documents in a collection and triggers whenever a document is added, updated, or deleted.
 
-Fields:
-- name: string  
-- email: string  
-- role: string (artisan / customer)  
-- profileImage: string (URL)  
-- createdAt: timestamp  
+```dart
+FirebaseFirestore.instance
+  .collection('tasks')
+  .snapshots();
+```
 
----
+### ✅ Document Snapshot Listener (Real-Time Single Document Updates)
+Listens to a single document and triggers on field changes or server updates.
 
-### products (collection)
-Stores products listed by artisans.
-
-**Document ID:** productId (auto-generated)
-
-Fields:
-- title: string  
-- description: string  
-- price: number  
-- categoryId: string  
-- artisanId: string (reference to users)  
-- imageUrl: string  
-- isAvailable: boolean  
-- createdAt: timestamp  
+```dart
+FirebaseFirestore.instance
+  .collection('users')
+  .doc(userId)
+  .snapshots();
+```
 
 ---
 
-### categories (collection)
-Stores product categories.
+## ⚡ StreamBuilder for Real-Time UI
 
-**Document ID:** categoryId
+StreamBuilder rebuilds the UI automatically whenever Firestore emits a new snapshot.
 
-Fields:
-- name: string  
-- description: string  
+### ✅ Collection Listener with StreamBuilder
+```dart
+StreamBuilder(
+  stream: FirebaseFirestore.instance.collection('tasks').snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    }
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return Text('No tasks available');
+    }
+
+    final docs = snapshot.data!.docs;
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        return ListTile(title: Text(docs[index]['title']));
+      },
+    );
+  },
+);
+```
+
+### ✅ Document Listener with StreamBuilder
+```dart
+StreamBuilder(
+  stream: FirebaseFirestore.instance
+      .collection('users')
+      .doc(userId)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (!snapshot.hasData) return CircularProgressIndicator();
+    final data = snapshot.data!.data()!;
+    return Text("Name: ${data['name']}");
+  },
+);
+```
 
 ---
 
-### orders (collection)
-Stores customer orders.
+## 🧩 App Implementation (Real-Time UI)
 
-**Document ID:** orderId
+The Home Screen now includes:
 
-Fields:
-- userId: string  
-- totalAmount: number  
-- status: string (pending / confirmed / delivered)  
-- createdAt: timestamp  
+- **Live profile updates** from `users/{uid}` using a document snapshot listener
+- **Live task list updates** from `tasks` collection using a collection listener
 
-#### items (subcollection)
-Stores individual items within an order.
+These streams power real-time UI updates using `StreamBuilder` and `.snapshots()`.
 
-Fields:
-- productId: string  
-- quantity: number  
-- price: number  
+    final docs = snapshot.data!.docs;
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        return ListTile(title: Text(docs[index]['title']));
+      },
+    );
+  },
+);
+```
+
+## 📸 Screenshots
+
+### Firestore Console Updates
+![Firestore Console](screenshots/firestore_console_updates.png)
+
+### App UI Updating Instantly
+![Real-Time UI](screenshots/realtime_ui_updates.png)
 
 ---
 
-## Sample Firestore Documents
+## 🧠 Reflection
 
-<!-- ### users/{userId}
-```json
-{
-  "name": "Sri Charan",
-  "email": "charan@example.com",
-  "role": "artisan",
-  "profileImage": "https://image.url",
-  "createdAt": "timestamp"
+### Why Real-Time Sync Improves UX
+- Users see changes instantly without manual refresh
+- Feels modern and responsive (like chat or live dashboards)
+- Improves engagement and trust in the app
+
+### How Firestore’s `.snapshots()` Simplifies Live Updates
+- No manual polling or refresh logic required
+- StreamBuilder handles rebuilds automatically
+- Easy to combine loading, empty, and error states
+
+### Challenges Faced
+- Ensuring UI handles empty data safely
+- Avoiding crashes on missing fields
+- Structuring Firestore docs for consistent rendering
+
+The Home Screen now includes:
+
+- **Live profile updates** from `users/{uid}` using a document snapshot listener
+- **Live task list updates** from `tasks` collection using a collection listener
+
+## ✅ Testing Real-Time Sync
+
+1. Open Firebase Console → Firestore
+2. Add or edit a document inside `tasks`
+3. Update fields inside `users/{uid}`
+4. Watch the app update instantly without refresh
+
+---
+
+
+# Firestore Queries, Filters & Ordering
+
+## ✅ Project Overview
+**Advanced Firestore Query Implementation with Real-Time Filtering**
+
+This implementation demonstrates sophisticated Firestore querying capabilities including where clauses, sorting, limiting, and complex query combinations. The app showcases efficient data retrieval techniques that make mobile apps fast and responsive by fetching only the required data.
+
+---
+
+## 🔍 Query Types Implemented
+
+### ✅ Basic Queries
+- **All Products**: Fetches entire product collection
+- **Limited Results**: Uses `.limit()` to control data volume
+
+### ✅ Filter Queries (where clauses)
+- **Price Range Filter**: `where('price', isGreaterThanOrEqualTo: minPrice)` + `where('price', isLessThanOrEqualTo: maxPrice)`
+- **Category Filter**: `where('category', isEqualTo: selectedCategory)`
+- **Stock Filter**: `where('inStock', isEqualTo: true)`
+- **Rating Filter**: `where('rating', isGreaterThan: 4.0)`
+
+### ✅ Sorting Queries (orderBy)
+- **Price Sorting**: `orderBy('price', descending: true/false)`
+- **Rating Sorting**: `orderBy('rating', descending: true/false)`
+- **Name Sorting**: `orderBy('name')`
+
+### ✅ Complex Combined Queries
+```dart
+FirebaseFirestore.instance
+  .collection('products')
+  .where('inStock', isEqualTo: true)
+  .where('rating', isGreaterThan: 3.5)
+  .orderBy('rating', descending: true)
+  .limit(5)
+  .snapshots();
+```
+
+---
+
+## 💻 Code Implementation Examples
+
+### Collection Query with Price Filter
+```dart
+StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+  stream: FirebaseFirestore.instance
+    .collection('products')
+    .where('price', isGreaterThanOrEqualTo: minPrice)
+    .where('price', isLessThanOrEqualTo: maxPrice)
+    .snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return CircularProgressIndicator();
+    }
+    
+    final docs = snapshot.data!.docs;
+    return ListView.builder(
+      itemCount: docs.length,
+      itemBuilder: (context, index) {
+        final data = docs[index].data();
+        return ProductCard(product: Product.fromJson(data));
+      },
+    );
+  },
+);
+```
+
+### Multiple Filters with Sorting
+```dart
+stream: FirebaseFirestore.instance
+  .collection('products')
+  .where('category', isEqualTo: 'Ceramics')
+  .where('inStock', isEqualTo: true)
+  .orderBy('price', descending: false)
+  .limit(10)
+  .snapshots(),
+```
+
+### Dynamic Query Building
+```dart
+Stream<QuerySnapshot<Map<String, dynamic>>> _getQueryStream() {
+  Query<Map<String, dynamic>> query = 
+    FirebaseFirestore.instance.collection('products');
+
+  switch (selectedQuery) {
+    case 'High Rated (>4.0)':
+      return query
+        .where('rating', isGreaterThan: 4.0)
+        .snapshots();
+    case 'Sorted by Price':
+      return query
+        .orderBy('price', descending: descending)
+        .snapshots();
+    default:
+      return query.snapshots();
+  }
 }
+```
 
-{
-  "title": "Handmade Pottery Vase",
-  "description": "Eco-friendly handcrafted vase",
-  "price": 899,
-  "categoryId": "home_decor",
-  "artisanId": "userId123",
-  "imageUrl": "https://image.url",
-  "isAvailable": true,
-  "createdAt": "timestamp"
-} -->
+---
 
-## Reflection
+## 🎛️ Interactive Query Controls
 
-This Firestore structure was chosen to clearly separate users, products, and orders while allowing the app to scale efficiently as data grows. Subcollections are used where data can increase significantly, such as order items. The design avoids large arrays inside documents and uses timestamps for sorting and querying. This schema makes future CRUD operations, real-time updates, and performance optimization easier to implement.
+The app features dynamic query controls allowing users to:
+
+- **Select Query Type**: Dropdown with 9 different query options
+- **Adjust Price Range**: Slider for minimum/maximum price filtering
+- **Choose Category**: Dropdown for product category filtering
+- **Toggle Sort Order**: Switch between ascending/descending
+- **Set Result Limits**: Slider to control number of results (1-50)
+- **Sample Data Management**: Populate/clear Firestore test data
+
+# Writing and Updating Data to Cloud Firestore
+
+## Description
+
+In this task, secure write operations were implemented to store application data in Cloud Firestore from the Flutter app. The focus was on adding new documents, updating existing records, validating user input, and handling Firestore permission errors gracefully.
+
+This task ensures that data written to Firestore is structured, secure, and scalable for real-world usage.
+
+## Input Handling & Validation
+
+A form-based UI was created to capture user input
+
+Validation ensures:
+Required fields are not empty
+Correct data types are stored
+Snackbar messages are shown for success and error cases
+
+## Testing & Verification
+
+Tasks were added from the app and verified in Firebase Console
+Updated task data reflected instantly in Firestore
+Real-time sync behavior was confirmed
+
+### Reflection
+
+Secure write operations are essential to protect application data from unauthorized access and corruption. Understanding the difference between add, set, and update helped in choosing the correct operation for each scenario. Proper validation and Firestore rules ensure data consistency, scalability, and security in production-ready applications.
+
+
+# Implementing Real-Time Sync
+
+## Description
+
+This task demonstrates how Cloud Firestore is used to write data securely and listen to real-time updates in the CraftConnect Flutter application. The app allows users to add tasks to Firestore and instantly reflect those changes in the UI using Firestore snapshot listeners.
+
+## Application Flow
+
+User logs in using Firebase Authentication
+Home Screen displays user session information
+User adds a task using the form on Home Screen
+Task is written securely to Firestore
+Real-time task list updates instantly without refres
+Firestore Console reflects changes immediately
+
+### Reflection
+
+Real-time synchronization significantly improves user experience by keeping the UI in sync with database changes automatically. Firestore’s .snapshots() API simplifies live updates and eliminates the need for manual refresh logic. The biggest challenge was maintaining clean widget structure while integrating streams, but proper separation of concerns helped keep the code manageable and scalable.
+
+
+# Triggering Cloud Functions for Serverless Event Handling
+
+## Overview
+Cloud Functions were set up to handle backend logic in a serverless manner. These functions are designed to execute automatically in response to client calls or Firestore database events.
+
+## Implementation
+- Firebase Cloud Functions were initialized using Firebase CLI
+- A callable Cloud Function was created to demonstrate client-triggered backend execution
+- An event-based Firestore trigger was implemented to react to database changes
+- Pre-deployment checks were successfully executed
+
+## Deployment Note
+Cloud Functions deployment requires the Firebase project to be on the **Blaze (pay-as-you-go)** plan in order to enable required APIs such as:
+- cloudfunctions.googleapis.com
+- cloudbuild.googleapis.com
+- artifactregistry.googleapis.com
+
+Since this is an academic project, the functions were not deployed to production to avoid unnecessary billing. However, the complete setup, code, and configuration were successfully implemented and verified locally.
+
+### Learning Outcome
+This task provided hands-on experience with:
+- Serverless backend architecture
+- Event-driven programming
+- Firebase Cloud Functions lifecycle
+- Understanding production deployment constraints
+
+### Reflection
+Using Cloud Functions eliminates the need to manage backend servers and allows automatic execution of logic in response to app or database events. While deployment requires a paid plan, the serverless model significantly reduces operational overhead and scales automatically. This approach is ideal for real-time apps, notifications, and background processing.
+
+
+# Implementing User Location Access and Map Markers
+
+## Task Overview
+
+This task focuses on enabling location-aware features in the CraftConnect Flutter application. Using Google Maps and device GPS, the app now fetches the user’s real-time location, updates the map camera dynamically, and displays both live user markers and static craft shop markers. This feature forms the foundation for future use cases such as navigation, delivery tracking, and nearby artisan discovery.
+
+## Features Implemented
+- User Location Access
+- Real-Time Location Tracking
+- Map Markers
+- Interactive Map Experience
+
+### Reflection
+
+Implementing live location tracking and map markers significantly enhances the user experience by making the app interactive and context-aware. Real-time GPS updates combined with dynamic camera movements provide a seamless navigation-like feel. This feature lays the groundwork for advanced capabilities such as route drawing, distance calculation, and location-based recommendations in future iterations of the app.
+
+
 
 
 

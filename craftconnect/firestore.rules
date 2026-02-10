@@ -2,13 +2,142 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
-    // User-specific items collection
-    match /users/{uid}/items/{itemId} {
-      // Users can only read and write their own items
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+    // ===== HELPER FUNCTIONS =====
+    function isAuthenticated() {
+      return request.auth != null;
     }
-    
-    // Deny all other access by default
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid))
+          .data.isAdmin == true;
+    }
+
+    // ===== USER PROFILES =====
+    match /users/{userId} {
+
+      // Public user profile (authenticated users)
+      allow read: if isAuthenticated();
+
+      // User can manage own profile
+      allow create, update: if isOwner(userId);
+
+      // Admin only
+      allow delete: if isAdmin();
+
+      // ===== USER ITEMS (FROM sprint-2) =====
+      match /items/{itemId} {
+        // Users can only access their own items
+        allow read, write: if isOwner(userId);
+      }
+
+      // ===== PRIVATE USER DATA =====
+      match /private/{document=**} {
+        allow read, write: if isOwner(userId);
+      }
+
+      // ===== USER SETTINGS =====
+      match /settings/{settingId} {
+        allow read, write: if isOwner(userId);
+      }
+    }
+
+    // ===== POSTS =====
+    match /posts/{postId} {
+      allow read: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+        request.resource.data.authorId == request.auth.uid;
+
+      allow update: if isAuthenticated() &&
+        resource.data.authorId == request.auth.uid;
+
+      allow delete: if isAuthenticated() &&
+        (resource.data.authorId == request.auth.uid || isAdmin());
+
+      // ===== COMMENTS =====
+      match /comments/{commentId} {
+        allow read: if isAuthenticated();
+
+        allow create: if isAuthenticated() &&
+          request.resource.data.authorId == request.auth.uid;
+
+        allow update, delete: if isAuthenticated() &&
+          resource.data.authorId == request.auth.uid;
+      }
+    }
+
+    // ===== ADMIN COLLECTION =====
+    match /admin/{document=**} {
+      allow read, write: if isAdmin();
+    }
+
+    // ===== PUBLIC DATA =====
+    match /public/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // ===== CHAT ROOMS =====
+    match /chatRooms/{roomId} {
+      allow read: if isAuthenticated() &&
+        request.auth.uid in resource.data.memberIds;
+
+      allow create: if isAuthenticated() &&
+        request.auth.uid in request.resource.data.memberIds;
+
+      allow update: if isAuthenticated() &&
+        request.auth.uid in resource.data.memberIds;
+
+      allow delete: if isAuthenticated() &&
+        resource.data.createdBy == request.auth.uid;
+
+      // ===== CHAT MESSAGES =====
+      match /messages/{messageId} {
+        allow read, create: if isAuthenticated() &&
+          request.auth.uid in
+          get(/databases/$(database)/documents/chatRooms/$(roomId))
+            .data.memberIds &&
+          request.resource.data.senderId == request.auth.uid;
+
+        allow update, delete: if isAuthenticated() &&
+          resource.data.senderId == request.auth.uid;
+      }
+    }
+
+    // ===== ACTIVITIES =====
+    match /activities/{activityId} {
+      allow read: if isAuthenticated();
+
+      allow create: if isAuthenticated() &&
+        request.resource.data.userId == request.auth.uid;
+
+      allow update, delete: if false;
+    }
+
+    // ===== PRODUCTS (VALIDATION EXAMPLE) =====
+    match /products/{productId} {
+      allow read: if true;
+
+      allow create: if isAuthenticated() &&
+        request.resource.data.keys().hasAll(['name', 'price', 'createdBy']) &&
+        request.resource.data.name is string &&
+        request.resource.data.price is number &&
+        request.resource.data.price > 0 &&
+        request.resource.data.createdBy == request.auth.uid;
+
+      allow update: if isAuthenticated() &&
+        (resource.data.createdBy == request.auth.uid || isAdmin());
+
+      allow delete: if isAdmin();
+    }
+
+    // ===== DENY EVERYTHING ELSE =====
     match /{document=**} {
       allow read, write: if false;
     }

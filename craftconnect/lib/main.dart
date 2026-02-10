@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'firebase_options.dart';
+import 'services/notification_service.dart';
 
 // Screens
 import 'screens/auth_screen.dart';
@@ -13,13 +14,17 @@ import 'screens/responsive_layout.dart';
 import 'screens/responsive_demo_screen.dart';
 import 'screens/scrollable_views.dart';
 import 'screens/user_input_form.dart';
-import 'screens/asset_demo_screen.dart';
 import 'screens/animation_demo_screen.dart';
 import 'screens/state_management_demo.dart';
 import 'screens/stateless_stateful_demo.dart';
 import 'screens/dev_tools_demo_screen.dart';
 import 'screens/firestore_tasks_screen.dart';
 import 'screens/auth_gate.dart';
+import 'screens/firestore_write_screen.dart';
+import 'screens/realtime_tasks_screen.dart';
+import 'screens/push_notification_demo_screen.dart';
+import 'screens/firestore_security_demo_screen.dart';
+import 'screens/maps_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,6 +33,9 @@ void main() async {
     await Firebase.initializeApp(
       options: DefaultFirebaseOptions.currentPlatform,
     );
+
+    // Initialize Push Notifications
+    await NotificationService().initialize();
   } catch (e) {
     debugPrint('Firebase init error: $e');
   }
@@ -82,7 +90,20 @@ class CraftConnectApp extends StatelessWidget {
         '/stateless-vs-stateful': (context) => const DemoScreen(),
         '/dev-tools': (context) => const DevToolsDemoScreen(),
         '/firestore-tasks': (context) => const FirestoreTasksScreen(),
+
+        // 🔐 CRUD + AUTH
         '/crud-demo': (context) => const AuthGate(),
+
+        // 🔥 FIREBASE DEMOS
+        '/firestore-write': (context) => const FirestoreWriteScreen(),
+        '/realtime-tasks': (context) => const RealtimeTasksScreen(),
+        '/push-notifications': (context) =>
+            const PushNotificationDemoScreen(),
+        '/firestore-security': (context) =>
+            const FirestoreSecurityDemoScreen(),
+
+        // 🗺️ MAPS
+        '/maps': (context) => const MapsScreen(),
       },
     );
   }
