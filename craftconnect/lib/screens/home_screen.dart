@@ -122,6 +122,16 @@ class HomeScreen extends StatelessWidget {
               ),
               child: const Text('🗺️ Google Maps Demo'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/provider-demo');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.green,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('🎯 Provider State Management'),
+            ),
           ],
         ),
       ),
