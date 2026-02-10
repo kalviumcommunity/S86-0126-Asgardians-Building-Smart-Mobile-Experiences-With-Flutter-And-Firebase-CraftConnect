@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
+
+// Providers
+import 'providers/counter_state.dart';
+import 'providers/favorites_state.dart';
+import 'providers/theme_state.dart';
+import 'providers/cart_state.dart';
 
 // Screens
 import 'screens/auth_screen.dart';
@@ -25,6 +32,13 @@ import 'screens/realtime_tasks_screen.dart';
 import 'screens/push_notification_demo_screen.dart';
 import 'screens/firestore_security_demo_screen.dart';
 import 'screens/maps_screen.dart';
+import 'screens/provider_demo_hub.dart';
+import 'screens/provider_counter_screen.dart';
+import 'screens/provider_counter_display_screen.dart';
+import 'screens/favorites_screen.dart';
+import 'screens/favorites_list_screen.dart';
+import 'screens/shopping_cart_screen.dart';
+import 'screens/theme_settings_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +54,17 @@ void main() async {
     debugPrint('Firebase init error: $e');
   }
 
-  runApp(const CraftConnectApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CounterState()),
+        ChangeNotifierProvider(create: (_) => FavoritesState()),
+        ChangeNotifierProvider(create: (_) => ThemeState()),
+        ChangeNotifierProvider(create: (_) => CartState()),
+      ],
+      child: const CraftConnectApp(),
+    ),
+  );
 }
 
 class CraftConnectApp extends StatelessWidget {
@@ -48,62 +72,68 @@ class CraftConnectApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'CraftConnect',
-      debugShowCheckedModeBanner: false,
+    return Consumer<ThemeState>(
+      builder: (context, themeState, child) {
+        return MaterialApp(
+          title: 'CraftConnect',
+          debugShowCheckedModeBanner: false,
 
-      theme: ThemeData(
-        primarySwatch: Colors.teal,
-        scaffoldBackgroundColor: Colors.teal.shade50,
-        appBarTheme: const AppBarTheme(
-          backgroundColor: Colors.teal,
-          foregroundColor: Colors.white,
-          centerTitle: true,
-        ),
-      ),
+          theme: themeState.themeData,
 
-      // 🔥 AUTH FLOW ENTRY POINT
-      home: StreamBuilder<User?>(
-        stream: FirebaseAuth.instance.authStateChanges(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const SplashScreen();
-          }
+          // 🔥 AUTH FLOW ENTRY POINT
+          home: StreamBuilder<User?>(
+            stream: FirebaseAuth.instance.authStateChanges(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SplashScreen();
+              }
 
-          if (snapshot.hasData) {
-            return const HomeScreen();
-          }
+              if (snapshot.hasData) {
+                return const HomeScreen();
+              }
 
-          return AuthScreen();
-        },
-      ),
+              return AuthScreen();
+            },
+          ),
 
-      routes: {
-        '/home': (context) => const HomeScreen(),
-        '/second': (context) => const SecondScreen(),
-        '/responsive': (context) => const ResponsiveLayout(),
-        '/responsive-demo': (context) => const ResponsiveDemoScreen(),
-        '/scrollable': (context) => ScrollableViews(),
-        '/user-input': (context) => UserInputForm(),
-        '/animations': (context) => const AnimationDemoScreen(),
-        '/state-management': (context) => const StateManagementDemo(),
-        '/stateless-vs-stateful': (context) => const DemoScreen(),
-        '/dev-tools': (context) => const DevToolsDemoScreen(),
-        '/firestore-tasks': (context) => const FirestoreTasksScreen(),
+          routes: {
+            '/home': (context) => const HomeScreen(),
+            '/second': (context) => const SecondScreen(),
+            '/responsive': (context) => const ResponsiveLayout(),
+            '/responsive-demo': (context) => const ResponsiveDemoScreen(),
+            '/scrollable': (context) => ScrollableViews(),
+            '/user-input': (context) => UserInputForm(),
+            '/animations': (context) => const AnimationDemoScreen(),
+            '/state-management': (context) => const StateManagementDemo(),
+            '/stateless-vs-stateful': (context) => const DemoScreen(),
+            '/dev-tools': (context) => const DevToolsDemoScreen(),
+            '/firestore-tasks': (context) => const FirestoreTasksScreen(),
 
-        // 🔐 CRUD + AUTH
-        '/crud-demo': (context) => const AuthGate(),
+            // 🔐 CRUD + AUTH
+            '/crud-demo': (context) => const AuthGate(),
 
-        // 🔥 FIREBASE DEMOS
-        '/firestore-write': (context) => const FirestoreWriteScreen(),
-        '/realtime-tasks': (context) => const RealtimeTasksScreen(),
-        '/push-notifications': (context) =>
-            const PushNotificationDemoScreen(),
-        '/firestore-security': (context) =>
-            const FirestoreSecurityDemoScreen(),
+            // 🔥 FIREBASE DEMOS
+            '/firestore-write': (context) => const FirestoreWriteScreen(),
+            '/realtime-tasks': (context) => const RealtimeTasksScreen(),
+            '/push-notifications': (context) =>
+                const PushNotificationDemoScreen(),
+            '/firestore-security': (context) =>
+                const FirestoreSecurityDemoScreen(),
 
-        // 🗺️ MAPS
-        '/maps': (context) => const MapsScreen(),
+            // 🗺️ MAPS
+            '/maps': (context) => const MapsScreen(),
+
+            // 🎯 PROVIDER STATE MANAGEMENT
+            '/provider-demo': (context) => const ProviderDemoHub(),
+            '/provider-counter': (context) => const ProviderCounterScreen(),
+            '/provider-counter-display': (context) =>
+                const ProviderCounterDisplayScreen(),
+            '/favorites': (context) => const FavoritesScreen(),
+            '/favorites-list': (context) => const FavoritesListScreen(),
+            '/shopping-cart': (context) => const ShoppingCartScreen(),
+            '/theme-settings': (context) => const ThemeSettingsScreen(),
+          },
+        );
       },
     );
   }
