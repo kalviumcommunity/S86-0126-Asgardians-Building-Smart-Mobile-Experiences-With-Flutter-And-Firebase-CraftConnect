@@ -19,6 +19,7 @@ import 'screens/state_management_demo.dart';
 import 'screens/stateless_stateful_demo.dart';
 import 'screens/dev_tools_demo_screen.dart';
 import 'screens/firestore_tasks_screen.dart';
+import 'screens/auth_gate.dart';
 import 'screens/firestore_write_screen.dart';
 import 'screens/realtime_tasks_screen.dart';
 import 'screens/push_notification_demo_screen.dart';
@@ -89,10 +90,19 @@ class CraftConnectApp extends StatelessWidget {
         '/stateless-vs-stateful': (context) => const DemoScreen(),
         '/dev-tools': (context) => const DevToolsDemoScreen(),
         '/firestore-tasks': (context) => const FirestoreTasksScreen(),
+
+        // 🔐 CRUD + AUTH
+        '/crud-demo': (context) => const AuthGate(),
+
+        // 🔥 FIREBASE DEMOS
         '/firestore-write': (context) => const FirestoreWriteScreen(),
         '/realtime-tasks': (context) => const RealtimeTasksScreen(),
-        '/push-notifications': (context) => const PushNotificationDemoScreen(),
-        '/firestore-security': (context) => const FirestoreSecurityDemoScreen(),
+        '/push-notifications': (context) =>
+            const PushNotificationDemoScreen(),
+        '/firestore-security': (context) =>
+            const FirestoreSecurityDemoScreen(),
+
+        // 🗺️ MAPS
         '/maps': (context) => const MapsScreen(),
       },
     );
