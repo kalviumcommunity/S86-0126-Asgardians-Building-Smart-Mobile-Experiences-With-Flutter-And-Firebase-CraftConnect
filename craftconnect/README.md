@@ -472,12 +472,108 @@ DevTools enables us to catch issues during development rather than after deploym
 **Module:** Building Smart Mobile Experiences with Flutter and Firebase  
 **Project:** CraftConnect
 
-## 📝 Commit Message
+## 📝 Git Commands Reference
+
+### Branch Management
+```bash
+# Create and switch to new branch
+git checkout -b feature/new-feature
+git checkout -b fix/bug-fix
+
+# List all branches
+git branch -a
+
+# Switch to existing branch
+git checkout main
+git checkout develop
+
+# Delete branch (locally)
+git branch -d feature/old-feature
+
+# Delete branch (remotely)
+git push origin --delete feature/old-feature
+```
+
+### Adding & Committing Changes
+```bash
+# Add specific files
+git add lib/main.dart
+git add lib/screens/
+
+# Add all changes
+git add .
+
+# Add and commit in one line
+git commit -am "feat: add new authentication flow"
+
+# Commit with detailed message
+git commit -m "feat: implement Firebase authentication
+
+- Add email/password sign-in
+- Create user registration flow  
+- Add logout functionality
+- Update UI with auth state"
+```
+
+### Pushing Changes
+```bash
+# Push to remote branch (first time)
+git push -u origin feature/auth-implementation
+
+# Push to existing remote branch
+git push origin feature/auth-implementation
+
+# Push current branch
+git push
+
+# Force push (use carefully)
+git push --force-with-lease
+```
+
+### Workflow Commands
+```bash
+# Complete workflow for new feature
+git checkout -b feature/firestore-security
+git add .
+git commit -m "feat: implement Firestore security rules"
+git push -u origin feature/firestore-security
+
+# Quick commit and push (existing branch)
+git add .
+git commit -m "docs: update README with security examples"
+git push
+```
+
+### Useful Status Commands
+```bash
+# Check current status
+git status
+
+# View commit history
+git log --oneline
+
+# See what changed
+git diff
+
+# See staged changes
+git diff --cached
+```
+
+## 📝 Commit Message Examples
 
 ```bash
 git add .
+git commit -m "feat: add Firebase authentication setup"
+git push origin feature/auth-setup
+
+git commit -m "fix: resolve Firestore permission denied error"
+git push origin fix/firestore-rules
+
+git commit -m "docs: update README with security best practices"
+git push origin docs/security-guide
+
 git commit -m "chore: demonstrated hot reload, debug console, and DevTools usage"
-git push origin <your-branch-name>
+git push origin feature/devtools-demo
 ```
 
 ## 🔗 Pull Request Template
@@ -924,6 +1020,155 @@ With Firebase SDKs properly integrated, you can now:
 - **Time Savings**: Minutes vs. hours for multi-platform setup
 - **Maintainability**: Easy to update and reconfigure when needed
 - **Professional Standard**: Industry best practice for Firebase integration
+
+## 🔒 Securing Firebase with Authentication & Firestore Rules
+
+Modern mobile apps store sensitive user data, so Firebase projects must move beyond permissive "test mode" to authenticated, rule-driven access before shipping.
+
+### Why Securing Firestore Matters
+- Protects documents from unauthorized reads/writes, preventing tampering and accidental deletion.
+- Ensures only signed-in users interact with the database, lowering the risk of spam or bot attacks.
+- Enables role-based permissions (admins vs. regular users) through custom claims.
+- Required before onboarding beta testers or production traffic.
+
+### Firebase Authentication Setup
+1. **Add dependencies** in [pubspec.yaml](pubspec.yaml):
+   ```yaml
+   dependencies:
+     firebase_core: ^latest
+     firebase_auth: ^latest
+     cloud_firestore: ^latest
+   ```
+2. **Install packages**: `flutter pub get`
+3. **Initialize Firebase** before `runApp()`:
+   ```dart
+   void main() async {
+     WidgetsFlutterBinding.ensureInitialized();
+     await Firebase.initializeApp(
+       options: DefaultFirebaseOptions.currentPlatform,
+     );
+     runApp(const CraftConnectApp());
+   }
+   ```
+4. **Enable providers** in Firebase Console → Authentication → Sign-in Methods.
+5. **Authenticate users** inside Flutter:
+   ```dart
+   final auth = FirebaseAuth.instance;
+
+   Future<UserCredential> signIn(String email, String password) {
+     return auth.signInWithEmailAndPassword(email: email, password: password);
+   }
+   ```
+
+### Writing Secure Firestore Rules
+
+Start from the default ruleset and progressively tighten access:
+
+```text
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true; // ❌ Test mode (never ship!)
+    }
+  }
+}
+```
+
+**Recommended baseline:** block anonymous writes and scope data to document owners.
+
+```text
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /adminTasks/{taskId} {
+      allow read, write: if request.auth != null
+        && request.auth.token.admin == true; // Restrict admin-only operations
+    }
+  }
+}
+```
+
+Key ideas:
+- `request.auth` must exist for any write to succeed (blocks anonymous writes).
+- Users can only touch their own `/users/{uid}` document, eliminating cross-account access.
+- Admin-only collections should check for a custom claim (e.g., `request.auth.token.admin`).
+
+### Firestore Access Patterns in Flutter
+
+```dart
+final uid = FirebaseAuth.instance.currentUser!.uid;
+final users = FirebaseFirestore.instance.collection('users');
+
+Future<void> writeProfile() async {
+  await users.doc(uid).set({
+    'name': 'John Doe',
+    'lastLogin': DateTime.now(),
+  });
+}
+
+Future<Map<String, dynamic>?> readProfile() async {
+  final doc = await users.doc(uid).get();
+  return doc.data();
+}
+```
+
+When rules reject the operation, Firestore throws a `FirebaseException` with `PERMISSION_DENIED`—surface this to the user or retry after re-authentication.
+
+### Testing Rules
+- **Rules Playground:** Firebase Console → Firestore → Rules → Playground; simulate authenticated/anonymous reads and writes with mock UIDs.
+- **Emulator Suite:** Script rule tests locally to verify `allow`/`deny` outcomes in CI.
+- **Edge Cases:** Test admin-only actions, revoked credentials, and attempts to write outside the authorized document path.
+
+### Minimal Service + Rule Pairing
+
+```dart
+class FirestoreService {
+  final auth = FirebaseAuth.instance;
+  final db = FirebaseFirestore.instance;
+
+  Future<void> updateUserProfile() async {
+    final uid = auth.currentUser!.uid;
+    await db.collection('users').doc(uid).set({'updatedAt': DateTime.now()});
+  }
+}
+```
+
+```text
+match /users/{uid} {
+  allow read, write: if request.auth != null && request.auth.uid == uid;
+}
+```
+
+### Troubleshooting Cheatsheet
+
+| Issue | Root Cause | Fix |
+| --- | --- | --- |
+| `PERMISSION_DENIED` | Rules reject request | Verify `request.auth.uid`, document path, and rule logic |
+| Writes fail for guests | User not signed in | Redirect to login, then retry write |
+| Rules still open | Project left in test mode | Replace with authenticated rules + deploy |
+| Google Sign-In fails on release | Missing SHA-1/SHA-256 | Add fingerprints in Firebase Console and re-download configs |
+
+### Focused Resources
+- [Cloud Firestore Security Rules](https://firebase.google.com/docs/firestore/security/get-started)
+- [Firebase Auth + Firestore Integration](https://firebase.flutter.dev/docs/firestore/usage/)
+- [Rules Simulator Guide](https://firebase.google.com/docs/rules/simulator)
+- [Firebase Auth Flutter Docs](https://firebase.flutter.dev/docs/auth/overview/)
+
+## 🎯 Kalvium MVL Assignment Snapshot
+- **Module:** Securing Firebase with Authentication & Firestore Rules (Brain score 3.39)
+- **Goal:** Complete the assignment with ≥60% accuracy within 180 minutes.
+- **CTA:** Launch the assignment container and select **Start Assignment** to begin.
+- **Focus Areas:**
+  1. Configure Firebase Authentication providers.
+  2. Block anonymous writes in Firestore rules.
+  3. Restrict admin operations via custom claims.
+  4. Demonstrate rule testing via the Rules Playground or Emulator Suite.
+  5. Document findings (tests run, edge cases, screenshots) for submission.
+
+Support is available via **Student App | Kalvium** if blockers arise.
 
 ---
 
