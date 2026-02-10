@@ -14,7 +14,6 @@ import 'screens/responsive_layout.dart';
 import 'screens/responsive_demo_screen.dart';
 import 'screens/scrollable_views.dart';
 import 'screens/user_input_form.dart';
-import 'screens/asset_demo_screen.dart';
 import 'screens/animation_demo_screen.dart';
 import 'screens/state_management_demo.dart';
 import 'screens/stateless_stateful_demo.dart';
