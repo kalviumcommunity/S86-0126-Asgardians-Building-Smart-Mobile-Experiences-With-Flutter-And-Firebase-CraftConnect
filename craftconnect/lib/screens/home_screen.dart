@@ -112,6 +112,16 @@ class HomeScreen extends StatelessWidget {
               ),
               child: const Text('Firestore Security Demo'),
             ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushNamed(context, '/maps');
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('🗺️ Google Maps Demo'),
+            ),
           ],
         ),
       ),
