@@ -32,6 +32,15 @@ dependencies:
   # Location Permissions
   permission_handler: ^13.0.1
 
+  # State Management for Theming
+  provider: ^6.1.2
+
+  # Shared Preferences for Theme Persistence
+  shared_preferences: ^2.3.2
+
+  # Dynamic Color Support (Material You)
+  dynamic_color: ^1.7.0
+
   cupertino_icons: ^1.0.8
 
 dev_dependencies:

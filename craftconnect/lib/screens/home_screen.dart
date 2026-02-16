@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../widgets/theme_toggle_widget.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -12,6 +13,7 @@ class HomeScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("CraftConnect Home"),
         actions: [
+          const AppBarThemeToggle(),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () => _showLogoutDialog(context),
@@ -121,6 +123,34 @@ class HomeScreen extends StatelessWidget {
                 foregroundColor: Colors.white,
               ),
               child: const Text('🗺️ Google Maps Demo'),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Theme Settings Button
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/theme-settings');
+              },
+              icon: const Icon(Icons.palette),
+              label: const Text('Theme Settings'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+
+            const SizedBox(height: 8),
+
+            // Theme Examples Button
+            OutlinedButton.icon(
+              onPressed: () {
+                Navigator.pushNamed(context, '/theme-examples');
+              },
+              icon: const Icon(Icons.design_services),
+              label: const Text('Theme Examples'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
             ),
           ],
         ),
