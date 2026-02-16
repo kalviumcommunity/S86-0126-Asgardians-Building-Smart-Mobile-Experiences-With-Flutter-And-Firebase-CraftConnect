@@ -890,6 +890,23 @@ This task provided hands-on experience with:
 Using Cloud Functions eliminates the need to manage backend servers and allows automatic execution of logic in response to app or database events. While deployment requires a paid plan, the serverless model significantly reduces operational overhead and scales automatically. This approach is ideal for real-time apps, notifications, and background processing.
 
 
+# Implementing User Location Access and Map Markers
+
+## Task Overview
+
+This task focuses on enabling location-aware features in the CraftConnect Flutter application. Using Google Maps and device GPS, the app now fetches the user’s real-time location, updates the map camera dynamically, and displays both live user markers and static craft shop markers. This feature forms the foundation for future use cases such as navigation, delivery tracking, and nearby artisan discovery.
+
+## Features Implemented
+- User Location Access
+- Real-Time Location Tracking
+- Map Markers
+- Interactive Map Experience
+
+### Reflection
+
+Implementing live location tracking and map markers significantly enhances the user experience by making the app interactive and context-aware. Real-time GPS updates combined with dynamic camera movements provide a seamless navigation-like feel. This feature lays the groundwork for advanced capabilities such as route drawing, distance calculation, and location-based recommendations in future iterations of the app.
+
+
 
 
 
