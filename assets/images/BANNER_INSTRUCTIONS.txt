@@ -1,0 +1,20 @@
+Banner Image Instructions
+========================
+
+The README.md file references "assets/images/banner.png" which was missing.
+
+Created: banner.svg (as a template)
+
+To create the actual banner.png:
+1. Open banner.svg in any image editor or design tool
+2. Export/Save as PNG with dimensions 800x400 pixels
+3. Rename to banner.png
+4. Replace this file if needed
+
+Alternative: You can create your own custom banner image with:
+- Dimensions: 800x400 pixels (recommended)
+- Colors: Use app theme colors (#D4735E, #F4A261, #2A9D8F)
+- Include: App name "CraftConnect" and tagline
+- Format: PNG for best compatibility
+
+The current banner.svg provides a good starting template that matches your app's branding.

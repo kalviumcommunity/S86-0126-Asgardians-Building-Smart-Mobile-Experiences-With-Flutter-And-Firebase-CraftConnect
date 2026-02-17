@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle -->
+  <circle cx="100" cy="100" r="95" fill="#6366F1" stroke="#4F46E5" stroke-width="10"/>
+  
+  <!-- Craft Symbol - Hammer and Wrench -->
+  <g transform="translate(100, 100)">
+    <!-- Hammer -->
+    <g transform="rotate(-30)">
+      <rect x="-3" y="-40" width="6" height="50" fill="#FFFFFF"/>
+      <rect x="-12" y="-45" width="24" height="10" rx="2" fill="#FFFFFF"/>
+    </g>
+    
+    <!-- Wrench -->
+    <g transform="rotate(30)">
+      <rect x="-2" y="-35" width="4" height="40" fill="#FFFFFF"/>
+      <circle cx="0" cy="-35" r="8" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+      <rect x="-6" y="5" width="12" height="6" fill="#FFFFFF"/>
+    </g>
+  </g>
+  
+  <!-- Text -->
+  <text x="100" y="170" text-anchor="middle" fill="#FFFFFF" font-family="Arial, sans-serif" font-size="18" font-weight="bold">CraftConnect</text>
+</svg>

@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read/write their own user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+    
+    // Shops - owners can read/write their own shops, others can read public shops
+    match /shops/{shopId} {
+      allow read: if resource.data.isPublic == true;
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.ownerId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.ownerId;
+    }
+    
+    // Products - anyone can read, only shop owners can write
+    match /products/{productId} {
+      allow read: if resource.data.isAvailable == true;
+      allow read, write: if request.auth != null && 
+        request.auth.uid == get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId;
+      allow create: if request.auth != null && 
+        request.auth.uid == get(/databases/$(database)/documents/shops/$(request.resource.data.shopId)).data.ownerId;
+    }
+    
+    // Orders - users can read/write their own orders, shop owners can read orders for their products
+    match /orders/{orderId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow read: if request.auth != null && 
+        request.auth.uid == get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId;
+      allow update: if request.auth != null && 
+        request.auth.uid == get(/databases/$(database)/documents/shops/$(resource.data.shopId)).data.ownerId &&
+        (request.resource.data.status != resource.data.status || request.resource.data.tracking != resource.data.tracking);
+    }
+    
+    // Reviews - users can read all, write their own
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == resource.data.userId;
+      allow create: if request.auth != null && request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Notifications - users can read/write their own
+    match /notifications/{notificationId} {
+      allow read, write: if request.auth != null && request.auth.uid == resource.data.userId;
+    }
+    
+    // Admin access (replace with your admin UID)
+    match /{document=**} {
+      allow read, write: if request.auth != null && 
+        request.auth.uid in ['ADMIN_UID_1', 'ADMIN_UID_2']; // Replace with actual admin UIDs
+    }
+  }
+}

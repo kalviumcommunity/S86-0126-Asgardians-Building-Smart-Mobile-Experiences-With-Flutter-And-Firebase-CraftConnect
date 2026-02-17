@@ -1,0 +1,18 @@
+CraftConnect Logo
+
+This is a simple text-based logo for CraftConnect app.
+The logo concept uses a hammer and wrench crossed together symbolizing craftsmanship and connection.
+
+Primary branding elements:
+- App Name: CraftConnect
+- Primary Color: #D4735E (Terracotta)
+- Secondary Color: #F4A261 (Golden Yellow)
+- Accent Color: #2A9D8F (Deep Teal)
+
+The splash screen displays:
+- A handyman icon (hammer/wrench)
+- Letter "C" for CraftConnect
+- Smooth fade and scale animations
+- Warm color scheme that reflects craftsmanship
+
+This logo represents the connection between artisans and customers in a warm, inviting way.
