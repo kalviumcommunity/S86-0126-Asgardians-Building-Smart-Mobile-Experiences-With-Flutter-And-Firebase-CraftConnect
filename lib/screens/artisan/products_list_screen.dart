@@ -5,11 +5,12 @@ import '../../l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../config/app_constants.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/shop_provider.dart';
 import '../../models/product_model.dart';
 
 class ProductsListScreen extends StatefulWidget {
-  final String shopId;
-  const ProductsListScreen({super.key, required this.shopId});
+  final String? shopId;
+  const ProductsListScreen({super.key, this.shopId});
 
   @override
   State<ProductsListScreen> createState() => _ProductsListScreenState();
@@ -19,7 +20,9 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
   @override
   void initState() {
     super.initState();
-    _loadProducts();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadProducts();
+    });
   }
 
   Future<void> _loadProducts() async {
@@ -27,7 +30,22 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
       context,
       listen: false,
     );
-    await productProvider.getProductsByShop(widget.shopId);
+    final shopProvider = Provider.of<ShopProvider>(
+      context,
+      listen: false,
+    );
+
+    // Get shopId from widget parameter or current shop
+    final shopId = widget.shopId ?? shopProvider.currentShop?.shopId ?? '';
+
+    if (shopId.isNotEmpty) {
+      await productProvider.getProductsByShop(shopId);
+    }
+  }
+
+  String _getShopId() {
+    final shopProvider = Provider.of<ShopProvider>(context, listen: false);
+    return widget.shopId ?? shopProvider.currentShop?.shopId ?? '';
   }
 
   Future<void> _deleteProduct(String productId) async {
@@ -103,9 +121,12 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                   const SizedBox(height: AppSpacing.xl),
                   ElevatedButton.icon(
                     onPressed: () {
-                      context.go(
-                        '/artisan/add-product?shopId=${widget.shopId}',
-                      );
+                      final shopId = _getShopId();
+                      if (shopId.isNotEmpty) {
+                        context.go(
+                          '/artisan/add-product?shopId=$shopId',
+                        );
+                      }
                     },
                     icon: const Icon(Icons.add),
                     label: Text(l10n.product_add),
@@ -136,7 +157,10 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          context.go('/artisan/add-product?shopId=${widget.shopId}');
+          final shopId = _getShopId();
+          if (shopId.isNotEmpty) {
+            context.go('/artisan/add-product?shopId=$shopId');
+          }
         },
         child: const Icon(Icons.add),
       ),
@@ -246,10 +270,13 @@ class _ProductsListScreenState extends State<ProductsListScreen> {
                     Expanded(
                       child: OutlinedButton(
                         onPressed: () {
-                          context.push(
-                            '/artisan/add-product?shopId=${widget.shopId}',
-                            extra: product,
-                          );
+                          final shopId = _getShopId();
+                          if (shopId.isNotEmpty) {
+                            context.push(
+                              '/artisan/add-product?shopId=$shopId',
+                              extra: product,
+                            );
+                          }
                         },
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 8),

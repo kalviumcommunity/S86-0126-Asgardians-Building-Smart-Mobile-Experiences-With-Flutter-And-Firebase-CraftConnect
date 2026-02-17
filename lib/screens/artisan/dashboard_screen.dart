@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
 import '../../l10n/app_localizations.dart';
 import '../../config/theme.dart';
 import '../../config/app_constants.dart';
@@ -60,12 +59,6 @@ class _ArtisanDashboardScreenState extends State<ArtisanDashboardScreen> {
       appBar: AppBar(
         title: Text(
             '${l10n.dashboard_welcome}, ${authProvider.currentUser?.name ?? ""}'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => context.go('/artisan/settings'),
-          ),
-        ],
       ),
       body: shopProvider.currentShop == null
           ? _buildNoShopView(context, l10n)
@@ -202,27 +195,33 @@ class _ArtisanDashboardScreenState extends State<ArtisanDashboardScreen> {
                             ),
                             const SizedBox(height: AppSpacing.xs),
                             InkWell(
-                              onTap: () async {
-                                final url = AppEnvironment.getShopUrl(
-                                  shopProvider.currentShop?.slug ?? '',
-                                );
-                                final uri = Uri.parse(url);
-                                if (await canLaunchUrl(uri)) {
-                                  await launchUrl(
-                                    uri,
-                                    mode: LaunchMode.externalApplication,
-                                  );
+                              onTap: () {
+                                final slug =
+                                    shopProvider.currentShop?.slug ?? '';
+                                if (slug.isNotEmpty) {
+                                  context.go('/home/shop/$slug');
                                 }
                               },
-                              child: Text(
-                                AppEnvironment.getShopUrl(
-                                  shopProvider.currentShop?.slug ?? '',
-                                ),
-                                style: const TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 12,
-                                  decoration: TextDecoration.underline,
-                                ),
+                              child: const Row(
+                                children: [
+                                  Flexible(
+                                    child: Text(
+                                      'Visit Shop',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        decoration: TextDecoration.underline,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(width: 4),
+                                  Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                    size: 14,
+                                  ),
+                                ],
                               ),
                             ),
                           ],
@@ -259,17 +258,24 @@ class _ArtisanDashboardScreenState extends State<ArtisanDashboardScreen> {
               crossAxisSpacing: AppSpacing.md,
               childAspectRatio: 1.5,
               children: [
-                _buildStatCard(
-                  l10n.dashboard_totalProducts,
-                  totalProducts.toString(),
-                  Icons.inventory_2_outlined,
-                  AppTheme.primaryColor,
+                GestureDetector(
+                  onTap: () => context.go(
+                      '/artisan/products?shopId=${shopProvider.currentShop!.shopId}'),
+                  child: _buildStatCard(
+                    l10n.dashboard_totalProducts,
+                    totalProducts.toString(),
+                    Icons.inventory_2_outlined,
+                    AppTheme.primaryColor,
+                  ),
                 ),
-                _buildStatCard(
-                  l10n.dashboard_totalOrders,
-                  totalOrders.toString(),
-                  Icons.shopping_bag_outlined,
-                  AppTheme.accentColor,
+                GestureDetector(
+                  onTap: () => context.go('/artisan/orders'),
+                  child: _buildStatCard(
+                    l10n.dashboard_totalOrders,
+                    totalOrders.toString(),
+                    Icons.shopping_bag_outlined,
+                    AppTheme.accentColor,
+                  ),
                 ),
                 _buildStatCard(
                   l10n.dashboard_pendingOrders,
