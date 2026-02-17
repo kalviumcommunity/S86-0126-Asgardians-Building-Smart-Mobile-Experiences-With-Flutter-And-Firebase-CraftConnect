@@ -1,52 +1,110 @@
-# CraftConnect
+# CraftConnect 🎨
 
-**Digital Storefront for Local Artisans**
+**Digital Storefront for Local Artisans - Empowering Traditional Crafts in the Digital Age**
 
-> One app. One link. One business.
+> One app. One link. Infinite possibilities for artisans.
 
-![CraftConnect Banner](assets/images/banner.png)
+![Flutter](https://img.shields.io/badge/Flutter-3.0+-02569B?logo=flutter)
+![Firebase](https://img.shields.io/badge/Firebase-Powered-FFCA28?logo=firebase)
+![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20Web-brightgreen)
+![License](https://img.shields.io/badge/License-MIT-blue)
 
 ## 🎯 Overview
 
-CraftConnect is a modern, production-ready platform that empowers local artisans to sell their products digitally without needing a website, hosting, or technical setup. Built with Flutter for cross-platform support (Android + Web) and powered by Firebase for a robust backend.
+**CraftConnect** is a modern, production-ready e-commerce platform specifically designed for local artisans and craftspeople. It eliminates the barriers of entry into digital commerce by providing a complete, ready-to-use solution without requiring any technical knowledge, website maintenance, or hosting costs.
 
-## ✨ Features
+### The Problem We Solve
+Traditional artisans often lack:
+- **Technical Skills**: Don't know how to build/maintain websites
+- **Financial Resources**: Can't afford expensive e-commerce platforms
+- **Digital Presence**: Miss out on online customers
+- **Marketing Tools**: Struggle to reach wider audiences
 
-### For Artisans (Sellers)
-- ✅ **Easy Shop Creation** - Create your digital storefront in minutes
-- ✅ **Product Management** - Add, edit, and manage products with images
-- ✅ **Auto-Generated Links** - Get shareable store and product links
-- ✅ **Social Sharing** - Share directly to WhatsApp, Instagram, Facebook
-- ✅ **Order Management** - Track and manage orders with status updates
-- ✅ **Push Notifications** - Get instant alerts for new orders
-- ✅ **Multi-Language** - Support for Telugu, Hindi, and English
+### Our Solution
+CraftConnect provides a **free, mobile-first platform** where artisans can:
+- Create a digital storefront in under 5 minutes
+- Get a shareable link for their shop (like Instagram's bio link)
+- Manage products, orders, and customers from their phone
+- Accept payments and track sales
+- Reach customers through social media sharing
 
-### For Buyers
-- ✅ **No Login Required** - Browse and buy without creating an account
-- ✅ **Mobile & Web** - Access stores from any device
-- ✅ **Easy Checkout** - Simple order placement process
-- ✅ **Mock UPI Payment** - Simulated payment flow for testing
-- ✅ **Order Tracking** - Track your order status in real-time
+---
 
-### For Admins
-- ✅ **Shop Management** - Approve and monitor artisan shops
-- ✅ **Order Monitoring** - View all platform orders
-- ✅ **Analytics Dashboard** - Track platform metrics
+## ✨ Key Features
+
+### 🛍️ For Artisans (Sellers)
+| Feature | Description |
+|---------|-------------|
+| **Instant Shop Creation** | Create your digital storefront in minutes with an easy step-by-step process |
+| **Product Management** | Add unlimited products with images, descriptions, pricing, and stock tracking |
+| **Auto-Generated Links** | Get unique, shareable URLs for your shop and individual products (`craftconnect.com/shop/yourname`) |
+| **Social Media Integration** | Share directly to WhatsApp, Facebook, Instagram, and more with pre-formatted messages |
+| **Order Dashboard** | Real-time order management with status tracking (New → Accepted → Shipped → Delivered) |
+| **Push Notifications** | Instant alerts for new orders, messages, and customer inquiries |
+| **Analytics Dashboard** | Track sales, revenue, popular products, and customer behavior |
+| **Inventory Management** | Automated stock tracking with low-stock alerts |
+| **Multi-Language Support** | Interface available in English, Hindi, and Telugu |
+| **Messaging System** | Direct chat with customers for queries and support |
+| **Return Management** | Handle returns and refunds professionally |
+| **Coupon & Discounts** | Create promotional codes and special offers |
+| **Gift Wrapping** | Offer premium gift wrapping services |
+
+### 🛒 For Buyers (Customers)
+| Feature | Description |
+|---------|-------------|
+| **No Login Required** | Browse and shop without creating an account (optional login for order tracking) |
+| **Cross-Platform Access** | Shop from Android app or web browser |
+| **Simple Checkout** | 3-step checkout process (Cart → Details → Payment) |
+| **Multiple Payment Options** | UPI, Cards, Cash on Delivery support |
+| **Order Tracking** | Real-time order status and delivery updates |
+| **Wishlist** | Save favorite products for later |
+| **Product Reviews** | Read and write reviews with ratings |
+| **Chat with Artisan** | Direct messaging to ask questions about products |
+| **Return Requests** | Easy return/refund process with photo upload |
+| **Recently Viewed** | Quick access to products you've browsed |
+| **Product Comparison** | Compare up to 3 products side-by-side |
+| **Advanced Search** | Filter by category, price, rating, and more |
+
+### 👨‍💼 For Admins
+| Feature | Description |
+|---------|-------------|
+| **Shop Management** | Approve, monitor, and manage all artisan shops |
+| **Order Monitoring** | View all platform orders and transactions |
+| **Analytics Dashboard** | Platform-wide metrics and insights |
+| **User Management** | Manage buyer and seller accounts |
+| **Return Oversight** | Monitor and resolve return requests |
+| **Coupon Management** | Create and manage platform-wide promotions |
+
+---
 
 ## 🛠️ Tech Stack
 
-- **Frontend:** Flutter 3.0+ (Dart)
-- **Backend:** Firebase
-  - Authentication (Email + Phone)
-  - Cloud Firestore (Database)
-  - Cloud Storage (Images)
-  - Cloud Functions (Business Logic)
-  - Cloud Messaging (Notifications)
-  - Hosting (Web Deployment)
-- **State Management:** Provider
-- **Routing:** GoRouter
-- **CI/CD:** GitHub Actions
-- **Localization:** Flutter Intl (Telugu, Hindi, English)
+### Frontend
+- **Framework**: Flutter 3.0+ (Dart)
+- **State Management**: Provider Pattern
+- **Routing**: GoRouter (Deep linking support)
+- **UI Components**: Material Design 3
+- **Localization**: Flutter Intl (Multi-language)
+- **Image Handling**: Cached Network Images
+- **Fonts**: Google Fonts
+
+### Backend
+- **Authentication**: Firebase Auth (Email, Phone, Google)
+- **Database**: Cloud Firestore (NoSQL)
+- **Storage**: Firebase Cloud Storage (Images & Files)
+- **Functions**: Firebase Cloud Functions (Business Logic)
+- **Notifications**: Firebase Cloud Messaging (FCM)
+- **Analytics**: Firebase Analytics
+- **Hosting**: Firebase Hosting (Web deployment)
+
+### DevOps & Tools
+- **Version Control**: Git & GitHub
+- **CI/CD**: GitHub Actions
+- **Testing**: Flutter Widget Tests
+- **Performance**: Firebase Performance Monitoring
+- **Crash Reporting**: Firebase Crashlytics
+
+---
 
 ## 📁 Project Structure
 

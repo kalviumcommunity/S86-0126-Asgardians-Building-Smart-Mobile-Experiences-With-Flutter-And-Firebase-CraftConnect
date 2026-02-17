@@ -281,21 +281,13 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
                     Row(
                       children: [
                         TextButton.icon(
-                          onPressed: order.artisanId.isNotEmpty
-                              ? () => _startChatWithArtisan(context, order)
-                              : null,
-                          icon: Icon(
+                          onPressed: () =>
+                              _startChatWithArtisan(context, order),
+                          icon: const Icon(
                             Icons.chat_outlined,
                             size: 18,
-                            color: order.artisanId.isEmpty ? Colors.grey : null,
                           ),
-                          label: Text(
-                            'Chat with Artisan',
-                            style: TextStyle(
-                              color:
-                                  order.artisanId.isEmpty ? Colors.grey : null,
-                            ),
-                          ),
+                          label: const Text('Chat with Artisan'),
                         ),
                         const SizedBox(width: AppSpacing.sm),
                         TextButton.icon(
@@ -679,20 +671,6 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       debugPrint('Artisan ID: ${order.artisanId}');
       debugPrint('Shop ID: ${order.shopId}');
 
-      // Validate order data
-      if (order.artisanId.isEmpty) {
-        if (mounted) {
-          Navigator.of(context, rootNavigator: true).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text('Invalid order data: Artisan ID is missing'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
-        return;
-      }
-
       // Get shop details to get shop name and artisan name
       final shop = await shopProvider.getShopById(order.shopId);
       final product = await productProvider.getProductById(order.productId);
@@ -714,12 +692,31 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       debugPrint('Shop found: ${shop.shopName}');
       debugPrint('Creating conversation...');
 
+      // Use shop's ownerId as artisan ID if order doesn't have it
+      final artisanId =
+          order.artisanId.isNotEmpty ? order.artisanId : shop.ownerId;
+
+      if (artisanId.isEmpty) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content:
+                  Text('Cannot start chat: Shop owner information is missing'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+        return;
+      }
+
+      debugPrint('Using artisan ID: $artisanId');
+
       final conversation = await chatProvider.getOrCreateConversation(
         currentUserId: currentUser.uid,
         currentUserName:
             currentUser.name.isNotEmpty ? currentUser.name : 'User',
         currentUserProfilePic: currentUser.profilePicture,
-        otherUserId: order.artisanId,
+        otherUserId: artisanId,
         otherUserName: shop.shopName.isNotEmpty ? shop.shopName : 'Artisan',
         otherUserProfilePic: shop.imageUrl,
         productId: order.productId,
