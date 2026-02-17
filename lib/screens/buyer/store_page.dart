@@ -6,7 +6,9 @@ import '../../config/theme.dart';
 import '../../config/app_constants.dart';
 import '../../providers/shop_provider.dart';
 import '../../providers/product_provider.dart';
+import '../../providers/review_provider.dart';
 import '../../models/product_model.dart';
+import '../../models/review_model.dart';
 
 class StorePage extends StatefulWidget {
   final String shopSlug;
@@ -39,6 +41,15 @@ class _StorePageState extends State<StorePage> {
       await productProvider.getProductsByShop(shop.shopId);
       debugPrint(
           'StorePage: Products loaded: ${productProvider.products.length}');
+
+      // Load reviews for all products
+      if (mounted) {
+        final reviewProvider =
+            Provider.of<ReviewProvider>(context, listen: false);
+        for (var product in productProvider.products) {
+          await reviewProvider.loadReviewsForProduct(product.productId);
+        }
+      }
     } else {
       debugPrint('StorePage: Shop not found for slug: ${widget.shopSlug}');
     }
@@ -56,8 +67,9 @@ class _StorePageState extends State<StorePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Consumer2<ShopProvider, ProductProvider>(
-        builder: (context, shopProvider, productProvider, child) {
+      body: Consumer3<ShopProvider, ProductProvider, ReviewProvider>(
+        builder:
+            (context, shopProvider, productProvider, reviewProvider, child) {
           if (shopProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
@@ -82,6 +94,20 @@ class _StorePageState extends State<StorePage> {
               ),
             );
           }
+
+          // Calculate overall shop rating from all products
+          double totalRating = 0;
+          int totalReviewCount = 0;
+          for (var product in productProvider.products) {
+            final reviews =
+                reviewProvider.getReviewsForProduct(product.productId);
+            totalReviewCount += reviews.length;
+            for (var review in reviews) {
+              totalRating += review.rating;
+            }
+          }
+          final avgShopRating =
+              totalReviewCount > 0 ? totalRating / totalReviewCount : 0.0;
 
           return CustomScrollView(
             slivers: [
@@ -134,6 +160,17 @@ class _StorePageState extends State<StorePage> {
                           Text(shop.contact),
                         ],
                       ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 20),
+                          const SizedBox(width: AppSpacing.sm),
+                          Text(
+                            '${avgShopRating.toStringAsFixed(1)} ($totalReviewCount reviews)',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
                       const Divider(height: AppSpacing.xl),
                       Text(
                         'Products',
@@ -168,6 +205,113 @@ class _StorePageState extends State<StorePage> {
                         return _buildProductCard(product);
                       },
                       childCount: productProvider.products.length,
+                    ),
+                  ),
+                ),
+
+              // Reviews Section Header
+              SliverToBoxAdapter(
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.lg),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Divider(height: AppSpacing.xl),
+                      Text(
+                        'Customer Reviews',
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      if (totalReviewCount > 0) ...[
+                        const SizedBox(height: AppSpacing.sm),
+                        Row(
+                          children: [
+                            Text(
+                              avgShopRating.toStringAsFixed(1),
+                              style: Theme.of(context)
+                                  .textTheme
+                                  .headlineMedium
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildStarRating(avgShopRating),
+                                Text(
+                                  'Based on $totalReviewCount reviews',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: AppTheme.textSecondaryColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+
+              // Reviews List
+              if (totalReviewCount == 0)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppSpacing.xl),
+                    child: Center(
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.rate_review_outlined,
+                            size: 60,
+                            color: AppTheme.textSecondaryColor
+                                .withValues(alpha: 0.5),
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          const Text(
+                            'No reviews yet',
+                            style:
+                                TextStyle(color: AppTheme.textSecondaryColor),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        // Collect all reviews from all products
+                        final allReviews = <ReviewModel>[];
+                        for (var product in productProvider.products) {
+                          allReviews.addAll(reviewProvider
+                              .getReviewsForProduct(product.productId));
+                        }
+
+                        // Sort by date (newest first)
+                        allReviews
+                            .sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+                        if (index >= allReviews.length) return null;
+
+                        return _buildReviewCard(allReviews[index]);
+                      },
+                      childCount: () {
+                        final allReviews = <ReviewModel>[];
+                        for (var product in productProvider.products) {
+                          allReviews.addAll(reviewProvider
+                              .getReviewsForProduct(product.productId));
+                        }
+                        return allReviews.length;
+                      }(),
                     ),
                   ),
                 ),
@@ -263,5 +407,127 @@ class _StorePageState extends State<StorePage> {
         ),
       ),
     );
+  }
+
+  Widget _buildStarRating(double rating) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: List.generate(5, (index) {
+        return Icon(
+          index < rating.floor()
+              ? Icons.star
+              : index < rating
+                  ? Icons.star_half
+                  : Icons.star_border,
+          color: Colors.amber,
+          size: 16,
+        );
+      }),
+    );
+  }
+
+  Widget _buildReviewCard(ReviewModel review) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: AppSpacing.md),
+      padding: const EdgeInsets.all(AppSpacing.md),
+      decoration: AppDecorations.cardDecoration,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              CircleAvatar(
+                backgroundColor: AppTheme.primaryColor,
+                radius: 16,
+                child: Text(
+                  review.userName.isNotEmpty
+                      ? review.userName[0].toUpperCase()
+                      : 'U',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          review.userName,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                        if (review.isVerifiedPurchase) ...[
+                          const SizedBox(width: AppSpacing.xs),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color:
+                                  AppTheme.successColor.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              'Verified',
+                              style: TextStyle(
+                                fontSize: 10,
+                                color: AppTheme.successColor,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    const SizedBox(height: 2),
+                    _buildStarRating(review.rating),
+                  ],
+                ),
+              ),
+              Text(
+                _formatDate(review.createdAt),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppTheme.textSecondaryColor,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            review.comment,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final diff = now.difference(date);
+
+    if (diff.inDays == 0) {
+      return 'Today';
+    } else if (diff.inDays == 1) {
+      return 'Yesterday';
+    } else if (diff.inDays < 7) {
+      return '${diff.inDays} days ago';
+    } else if (diff.inDays < 30) {
+      return '${(diff.inDays / 7).floor()} weeks ago';
+    } else if (diff.inDays < 365) {
+      return '${(diff.inDays / 30).floor()} months ago';
+    } else {
+      return '${(diff.inDays / 365).floor()} years ago';
+    }
   }
 }

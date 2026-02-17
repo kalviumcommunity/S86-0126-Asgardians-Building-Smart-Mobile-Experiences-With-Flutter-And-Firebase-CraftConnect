@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../config/theme.dart';
@@ -666,6 +665,11 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       ),
     );
 
+    // Capture navigator, messenger and router before async operations
+    final navigator = Navigator.of(context, rootNavigator: true);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+    final router = GoRouter.of(context);
+
     try {
       debugPrint('Starting chat with artisan for order: ${order.orderId}');
       debugPrint('Artisan ID: ${order.artisanId}');
@@ -677,15 +681,13 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
 
       if (!mounted) return;
 
-      // Dismiss loading dialog if still mounted
-      Navigator.of(context, rootNavigator: true).pop();
+      // Dismiss loading dialog
+      navigator.pop();
 
       if (shop == null) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Could not find artisan details')),
-          );
-        }
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(content: Text('Could not find artisan details')),
+        );
         return;
       }
 
@@ -697,15 +699,13 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
           order.artisanId.isNotEmpty ? order.artisanId : shop.ownerId;
 
       if (artisanId.isEmpty) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content:
-                  Text('Cannot start chat: Shop owner information is missing'),
-              backgroundColor: Colors.red,
-            ),
-          );
-        }
+        scaffoldMessenger.showSnackBar(
+          const SnackBar(
+            content:
+                Text('Cannot start chat: Shop owner information is missing'),
+            backgroundColor: Colors.red,
+          ),
+        );
         return;
       }
 
@@ -726,12 +726,14 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
         shopName: shop.shopName,
       );
 
-      if (conversation != null && mounted) {
-        context.push('/chat/room/${conversation.conversationId}',
+      if (!mounted) return;
+
+      if (conversation != null) {
+        router.push('/chat/room/${conversation.conversationId}',
             extra: conversation);
-      } else if (mounted) {
+      } else {
         final errorMsg = chatProvider.error ?? 'Unknown error occurred';
-        ScaffoldMessenger.of(context).showSnackBar(
+        scaffoldMessenger.showSnackBar(
           SnackBar(
             content: Text('Failed to initialize chat: $errorMsg'),
             backgroundColor: Colors.red,
@@ -741,24 +743,30 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       }
     } catch (e) {
       debugPrint('Error in _startChatWithArtisan: $e');
-      if (mounted) {
-        // Try to pop the loading dialog if it's still there
-        try {
-          Navigator.of(context, rootNavigator: true).pop();
-        } catch (_) {}
+      if (!mounted) return;
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error starting chat: ${e.toString()}'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 4),
-          ),
-        );
-      }
+      // Try to pop the loading dialog if it's still there
+      try {
+        navigator.pop();
+      } catch (_) {}
+
+      if (!mounted) return;
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text('Error starting chat: ${e.toString()}'),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 4),
+        ),
+      );
     }
   }
 
   Future<void> _confirmDelete(BuildContext context, OrderModel order) async {
+    // Capture before async operation
+    final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    final scaffoldMessenger = ScaffoldMessenger.of(context);
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -779,19 +787,20 @@ class _OrdersListScreenState extends State<OrdersListScreen> {
       ),
     );
 
-    if (confirmed == true && mounted) {
-      final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+    if (confirmed == true) {
+      if (!mounted) return;
+
       final success = await orderProvider.deleteOrder(order.orderId);
 
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(success
-                ? 'Order removed from history'
-                : 'Failed to remove order: ${orderProvider.errorMessage}'),
-          ),
-        );
-      }
+      if (!mounted) return;
+
+      scaffoldMessenger.showSnackBar(
+        SnackBar(
+          content: Text(success
+              ? 'Order removed from history'
+              : 'Failed to remove order: ${orderProvider.errorMessage}'),
+        ),
+      );
     }
   }
 }

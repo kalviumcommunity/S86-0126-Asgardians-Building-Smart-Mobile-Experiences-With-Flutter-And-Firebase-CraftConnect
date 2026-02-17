@@ -15,6 +15,7 @@ import '../screens/artisan/orders_screen.dart';
 import '../screens/artisan/order_details_screen.dart';
 import '../screens/artisan/settings_screen.dart';
 import '../screens/buyer/main_navigation.dart';
+import '../screens/artisan/main_navigation.dart';
 import '../screens/buyer/home_screen.dart';
 import '../screens/buyer/orders_list_screen.dart';
 import '../screens/buyer/cart_screen.dart';
@@ -89,11 +90,73 @@ class AppRouter {
         },
       ),
 
-      // Artisan Routes
-      GoRoute(
-        path: '/artisan/dashboard',
-        builder: (context, state) => const ArtisanDashboardScreen(),
+      // Artisan Routes (Main Navigation with persistent tabs)
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) {
+          return ArtisanMainNavigation(navigationShell: navigationShell);
+        },
+        branches: [
+          // Branch Dashboard
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/artisan/dashboard',
+                builder: (context, state) => const ArtisanDashboardScreen(),
+              ),
+            ],
+          ),
+          // Branch Products
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/artisan/products',
+                builder: (context, state) {
+                  final shopId = state.uri.queryParameters['shopId'];
+                  return ProductsListScreen(shopId: shopId);
+                },
+              ),
+            ],
+          ),
+          // Branch Orders
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/artisan/orders',
+                builder: (context, state) => const OrdersScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'order/:orderId',
+                    builder: (context, state) {
+                      final orderId = state.pathParameters['orderId'] ?? '';
+                      return OrderDetailsScreen(orderId: orderId);
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
+          // Branch Analytics
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/artisan/analytics',
+                builder: (context, state) => const ShopAnalyticsScreen(),
+              ),
+            ],
+          ),
+          // Branch Settings
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/artisan/settings',
+                builder: (context, state) => const SettingsScreen(),
+              ),
+            ],
+          ),
+        ],
       ),
+
+      // Other Artisan Routes (without bottom navigation)
       GoRoute(
         path: '/artisan/create-shop',
         builder: (context, state) => const CreateShopScreen(),
@@ -107,30 +170,11 @@ class AppRouter {
         },
       ),
       GoRoute(
-        path: '/artisan/products',
-        builder: (context, state) {
-          final shopId = state.uri.queryParameters['shopId'] ?? '';
-          return ProductsListScreen(shopId: shopId);
-        },
-      ),
-      GoRoute(
-        path: '/artisan/orders',
-        builder: (context, state) => const OrdersScreen(),
-      ),
-      GoRoute(
         path: '/artisan/order/:orderId',
         builder: (context, state) {
           final orderId = state.pathParameters['orderId'] ?? '';
           return OrderDetailsScreen(orderId: orderId);
         },
-      ),
-      GoRoute(
-        path: '/artisan/settings',
-        builder: (context, state) => const SettingsScreen(),
-      ),
-      GoRoute(
-        path: '/artisan/analytics',
-        builder: (context, state) => const ShopAnalyticsScreen(),
       ),
       GoRoute(
         path: '/artisan/inventory',
